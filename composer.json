@@ -1,0 +1,16 @@
+{
+  "name": "paysera/lib-rest-client-common",
+  "description": "Base classes/helpers used in REST Clients",
+  "autoload": {
+    "psr-4": {
+      "Paysera\\Component\\RestClientCommon\\": "src"
+    }
+  },
+  "require": {
+    "php": ">=5.5",
+    "psr/http-message": "^1.0",
+    "guzzlehttp/guzzle": "^6.0",
+    "fig/http-message-util": "^1.0"
+  },
+  "minimum-stability": "stable"
+}
