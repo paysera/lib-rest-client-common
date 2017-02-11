@@ -75,4 +75,42 @@ class Entity implements ArrayAccess
         $this->data[$key] = $value;
         return $this;
     }
+
+    /**
+     * @param array $data
+     * @return $this
+     */
+    protected function setDataByReference(array &$data)
+    {
+        $this->data =& $data;
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @return mixed|null
+     */
+    protected function &getByReference($name)
+    {
+        return $this->data[$name];
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $data
+     * @return $this
+     */
+    protected function setByReference($name, &$data)
+    {
+        $this->data[$name] =& $data;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    protected function &getDataByReference()
+    {
+        return $this->data;
+    }
 }
