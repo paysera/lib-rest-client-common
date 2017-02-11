@@ -38,6 +38,6 @@ class ConfigHandler
 
     public static function setAuthentication(array &$config, array $auth)
     {
-        $config[self::KEY_AUTHENTICATION] = $auth;
+        $config[self::CONFIG_NAMESPACE][self::KEY_AUTHENTICATION] = $auth;
     }
 }

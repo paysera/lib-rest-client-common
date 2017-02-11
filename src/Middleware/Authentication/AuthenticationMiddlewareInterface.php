@@ -1,6 +1,6 @@
 <?php
 
-namespace Paysera\Component\RestClientCommon\Authentication\Middleware;
+namespace Paysera\Component\RestClientCommon\Middleware\Authentication;
 
 use GuzzleHttp\Promise\PromiseInterface;
 use Psr\Http\Message\RequestInterface;
@@ -15,9 +15,4 @@ interface AuthenticationMiddlewareInterface
      * @return PromiseInterface
      */
     public function __invoke(callable $nextHandler, RequestInterface $request, array $options);
-
-    /**
-     * @return int
-     */
-    public function getPriority();
 }

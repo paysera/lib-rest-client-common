@@ -1,8 +1,8 @@
 <?php
 
-namespace Paysera\Component\RestClientCommon\Authentication\Middleware;
+namespace Paysera\Component\RestClientCommon\Middleware\Authentication;
 
-use Paysera\Component\RestClientCommon\Authentication\Exception\AuthenticationConfigurationException;
+use Paysera\Component\RestClientCommon\Exception\AuthenticationConfigurationException;
 use Paysera\Component\RestClientCommon\Util\ConfigHandler;
 use Psr\Http\Message\RequestInterface;
 
@@ -15,17 +15,12 @@ class MacAuthentication implements AuthenticationMiddlewareInterface
         $auth = ConfigHandler::getAuthentication($options, self::TYPE);
 
         if ($auth === null) {
-            return $nextHandler($request, $auth);
+            return $nextHandler($request, $options);
         }
 
         $nextRequest = $request->withHeader('Authorization', $this->buildMacHeader($request, $auth));
 
-        return $nextHandler($nextRequest, $auth);
-    }
-
-    public function getPriority()
-    {
-        return 100;
+        return $nextHandler($nextRequest, $options);
     }
 
     private function buildMacHeader(RequestInterface $request, array $auth)
@@ -48,7 +43,7 @@ class MacAuthentication implements AuthenticationMiddlewareInterface
             'mac' => $mac,
         ];
 
-        if ($ext != '') {
+        if ($ext !== '') {
             $params['ext'] = $ext;
         }
 
@@ -86,7 +81,7 @@ class MacAuthentication implements AuthenticationMiddlewareInterface
         $content = $request->getBody()->getContents();
         $extParts = [];
 
-        if ($content != '') {
+        if ($content !== '') {
             $extParts['body_hash'] = base64_encode(hash('sha256', $content, true));
         }
 

@@ -3,6 +3,7 @@
 namespace Paysera\Component\RestClientCommon\Client;
 
 use Fig\Http\Message\RequestMethodInterface;
+use Fig\Http\Message\StatusCodeInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Request;
 use Paysera\Component\RestClientCommon\Entity\Entity;
@@ -19,12 +20,20 @@ class ApiClient
 
     /**
      * @param RequestInterface $request
-     * @return array
+     * @return array|null
      */
     public function makeRequest(RequestInterface $request)
     {
         $response = $this->client->send($request);
+
+        if ($response->getStatusCode() === StatusCodeInterface::STATUS_NO_CONTENT) {
+            return null;
+        }
+
         $body = $response->getBody()->getContents();
+        if (empty($body)) {
+            return null;
+        }
 
         return \GuzzleHttp\json_decode($body, true);
     }
@@ -38,29 +47,44 @@ class ApiClient
      */
     public function createRequest($method, $uri, Entity $entity = null)
     {
-        return $this->createPlainRequest($method, $uri, $entity !== null ? $entity->getData() : null);
+        return $this->createRequestWithParameters($method, $uri, $entity !== null ? $entity->getData() : null);
     }
 
     /**
      * @param string $method
      * @param string $uri
-     * @param mixed $data
+     * @param array|null $parameters
      * @return RequestInterface
      */
-    public function createPlainRequest($method, $uri, $data)
+    public function createRequestWithParameters($method, $uri, array $parameters = null)
     {
         $request = new Request($method, $uri);
 
-        if ($data !== null) {
-            if ($method === RequestMethodInterface::METHOD_GET && is_array($data)) {
-                $uri = $request->getUri()->withQuery(\GuzzleHttp\Psr7\build_query($data));
+        if ($parameters !== null) {
+            if ($method === RequestMethodInterface::METHOD_GET) {
+                $uri = $request->getUri()->withQuery(\GuzzleHttp\Psr7\build_query($parameters));
                 $request = $request->withUri($uri);
             } else {
-                if (is_array($data)) {
-                    $data = \GuzzleHttp\json_encode($data);
-                }
+                $data = \GuzzleHttp\json_encode($parameters);
                 $request = $request->withBody(\GuzzleHttp\Psr7\stream_for($data));
             }
+        }
+
+        return $request;
+    }
+
+    /**
+     * @param string $method
+     * @param string $uri
+     * @param resource|null $content
+     * @return RequestInterface
+     */
+    public function createRequestWithContent($method, $uri, $content)
+    {
+        $request = new Request($method, $uri);
+
+        if ($content !== null) {
+            $request = $request->withBody(\GuzzleHttp\Psr7\stream_for($content));
         }
 
         return $request;

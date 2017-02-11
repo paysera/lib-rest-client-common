@@ -1,8 +1,8 @@
 <?php
 
-namespace Paysera\Component\RestClientCommon\Authentication\Middleware;
+namespace Paysera\Component\RestClientCommon\Middleware\Authentication;
 
-use Paysera\Component\RestClientCommon\Authentication\Exception\AuthenticationConfigurationException;
+use Paysera\Component\RestClientCommon\Exception\AuthenticationConfigurationException;
 use Paysera\Component\RestClientCommon\Util\ConfigHandler;
 use Psr\Http\Message\RequestInterface;
 
@@ -15,17 +15,12 @@ class BasicAuthentication implements AuthenticationMiddlewareInterface
         $auth = ConfigHandler::getAuthentication($options, self::TYPE);
 
         if ($auth === null) {
-            return $nextHandler($request, $auth);
+            return $nextHandler($request, $options);
         }
 
         $nextRequest = $request->withHeader('Authorization', $this->buildAuthHeader($auth));
 
-        return $nextHandler($nextRequest, $auth);
-    }
-
-    public function getPriority()
-    {
-        return 100;
+        return $nextHandler($nextRequest, $options);
     }
 
     private function buildAuthHeader(array $auth)

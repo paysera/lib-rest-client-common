@@ -2,13 +2,11 @@
 
 namespace Paysera\Component\RestClientCommon\Authentication;
 
-use Paysera\Component\RestClientCommon\Authentication\Exception\AuthenticationConfigurationException;
-use Paysera\Component\RestClientCommon\Authentication\Middleware\AuthenticationMiddlewareInterface;
+use Paysera\Component\RestClientCommon\Exception\AuthenticationConfigurationException;
+use Paysera\Component\RestClientCommon\Middleware\Authentication\AuthenticationMiddlewareInterface;
 
 class AuthenticationProvider
 {
-    const HANDLER_POSITION = 'prepare_body';
-
     /**
      * @var AuthenticationMiddlewareInterface[]
      */
@@ -19,18 +17,19 @@ class AuthenticationProvider
         $this->middlewares = [];
     }
 
-    public function addMiddleware(AuthenticationMiddlewareInterface $middleware)
+    /**
+     * @param AuthenticationMiddlewareInterface $middleware
+     * @param int $priority Priority of middlewares. Bigger number gets higher priority
+     */
+    public function addMiddleware(AuthenticationMiddlewareInterface $middleware, $priority = 100)
     {
-        $this->middlewares[] = $middleware;
-        usort(
-            $this->middlewares,
-            function (AuthenticationMiddlewareInterface $a, AuthenticationMiddlewareInterface $b) {
-                if ($a->getPriority() === $b->getPriority()) {
-                    return 0;
-                }
-                return $a->getPriority() < $b->getPriority() ? 1 : -1;
-            }
-        );
+        if (!isset($this->middlewares[$priority])) {
+            $this->middlewares[$priority] = [$middleware];
+        } else {
+            $this->middlewares[$priority][] = $middleware;
+        }
+
+        ksort($this->middlewares);
     }
 
     /**
@@ -39,12 +38,28 @@ class AuthenticationProvider
      */
     public function getMiddlewares()
     {
-        foreach ($this->middlewares as $middleware) {
-            yield function (callable $handler) use ($middleware) {
-                return function ($request, $options) use ($middleware, $handler) {
-                    return $middleware($handler, $request, $options);
-                };
-            };
+        if (empty($this->middlewares)) {
+            return [];
         }
+
+        /** @var AuthenticationMiddlewareInterface[] $middlewares */
+        $middlewares = call_user_func_array('array_merge', $this->middlewares);
+
+        foreach ($middlewares as $middleware) {
+            yield $this->getMiddlewareFunction($middleware);
+        }
+    }
+
+    /**
+     * @param AuthenticationMiddlewareInterface $middleware
+     * @return \Closure
+     */
+    private function getMiddlewareFunction(AuthenticationMiddlewareInterface $middleware)
+    {
+        return function (callable $handler) use ($middleware) {
+            return function ($request, $options) use ($middleware, $handler) {
+                return $middleware($handler, $request, $options);
+            };
+        };
     }
 }

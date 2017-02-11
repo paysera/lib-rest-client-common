@@ -1,6 +1,6 @@
 <?php
 
-namespace Paysera\Component\RestClientCommon\Authentication\Exception;
+namespace Paysera\Component\RestClientCommon\Exception;
 
 class AuthenticationConfigurationException extends \Exception
 {
