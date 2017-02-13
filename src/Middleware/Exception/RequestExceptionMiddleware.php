@@ -3,13 +3,12 @@
 namespace Paysera\Component\RestClientCommon\Middleware\Exception;
 
 use Fig\Http\Message\StatusCodeInterface;
-use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
-use Paysera\Component\RestClientCommon\Middleware\Authentication\OAuthAuthentication;
-use Paysera\Component\RestClientCommon\Util\ConfigHandler;
+use Paysera\Component\RestClientCommon\Exception\ClientException;
+use Paysera\Component\RestClientCommon\Exception\ServerException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class RequestException
+class RequestExceptionMiddleware
 {
     public function __invoke(callable $nextHandler, RequestInterface $request, array $options)
     {
@@ -17,14 +16,11 @@ class RequestException
             function (ResponseInterface $response) use ($request, $nextHandler, $options) {
                 $code = $response->getStatusCode();
 
+                if ($code >= StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR) {
+                    throw ServerException::create($request, $response);
+                }
                 if ($code >= StatusCodeInterface::STATUS_BAD_REQUEST) {
-                    if (
-                        $code === StatusCodeInterface::STATUS_UNAUTHORIZED
-                        && ConfigHandler::getAuthentication($options, OAuthAuthentication::TYPE) !== null
-                    ) {
-                        return $response;
-                    }
-                    throw GuzzleRequestException::create($request, $response);
+                    throw ClientException::create($request, $response);
                 }
                 return $response;
             }

@@ -28,16 +28,28 @@ class AuthenticationMiddlewareTest extends TestCase
 
         TestClientFactory::setHandler(
             new MockHandler([
-                new Response(StatusCodeInterface::STATUS_OK, [], \GuzzleHttp\json_encode(['a' => 'b'])),
+                new Response(
+                    StatusCodeInterface::STATUS_OK,
+                    ['Content-Type' => 'application/json'],
+                    \GuzzleHttp\json_encode(['a' => 'b'])
+                ),
                 new Response(StatusCodeInterface::STATUS_UNAUTHORIZED),
-                new Response(StatusCodeInterface::STATUS_OK, [], \GuzzleHttp\json_encode([
-                    'access_token' => 'aaaa',
-                    'mac_key' => 'bbb',
-                    'expires_in' => 3600,
-                    'mac_algorithm' => 'hmac_sha_256',
-                    'token_type' => 'mac',
-                ])),
-                new Response(StatusCodeInterface::STATUS_OK, [], \GuzzleHttp\json_encode(['x' => 'y'])),
+                new Response(
+                    StatusCodeInterface::STATUS_OK,
+                    ['Content-Type' => 'application/json'],
+                    \GuzzleHttp\json_encode([
+                        'access_token' => 'aaaa',
+                        'mac_key' => 'bbb',
+                        'expires_in' => 3600,
+                        'mac_algorithm' => 'hmac_sha_256',
+                        'token_type' => 'mac',
+                    ])
+                ),
+                new Response(
+                    StatusCodeInterface::STATUS_OK,
+                    ['Content-Type' => 'application/json'],
+                    \GuzzleHttp\json_encode(['x' => 'y'])
+                ),
             ])
         );
 
@@ -53,11 +65,17 @@ class AuthenticationMiddlewareTest extends TestCase
 
         $this->assertCount(4, $history);
 
-        foreach ($factory::getHistory() as $transaction) {
+        foreach ($factory::getHistory() as $key => $transaction) {
             /** @var RequestInterface $request */
             $request = $transaction['request'];
             $auth = $request->getHeaderLine('Authorization');
-            $this->assertTrue(strpos($auth, 'MAC') === 0);
+            if ($key === 2) {
+                // on token refresh there should be no MAC token added
+                $this->assertFalse(strpos($auth, 'MAC') === 0);
+
+            } else {
+                $this->assertTrue(strpos($auth, 'MAC') === 0);
+            }
         }
     }
 
@@ -95,7 +113,7 @@ class AuthenticationMiddlewareTest extends TestCase
     }
 
     /**
-     * @expectedException \GuzzleHttp\Exception\ClientException
+     * @expectedException \Paysera\Component\RestClientCommon\Exception\ClientException
      */
     public function testUnauthorizedResponse()
     {

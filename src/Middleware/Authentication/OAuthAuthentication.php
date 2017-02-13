@@ -4,9 +4,10 @@ namespace Paysera\Component\RestClientCommon\Middleware\Authentication;
 
 use Fig\Http\Message\RequestMethodInterface;
 use Fig\Http\Message\StatusCodeInterface;
-use GuzzleHttp\Exception\RequestException;
+use Paysera\Component\RestClientCommon\Entity\Entity;
 use Paysera\Component\RestClientCommon\Exception\AuthenticationConfigurationException;
 use Paysera\Component\RestClientCommon\Client\ApiClient;
+use Paysera\Component\RestClientCommon\Exception\ClientException;
 use Paysera\Component\RestClientCommon\Util\ConfigHandler;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -14,6 +15,8 @@ use Psr\Http\Message\ResponseInterface;
 class OAuthAuthentication implements AuthenticationMiddlewareInterface
 {
     const TYPE = 'oauth';
+    const REFRESH_ATTEMPTED = 'token_refresh_attempted';
+    const TOKEN_REFRESH_REQUEST = 'token_refresh_request';
 
     private $apiClient;
 
@@ -35,10 +38,12 @@ class OAuthAuthentication implements AuthenticationMiddlewareInterface
             throw new AuthenticationConfigurationException('AccessToken is missing');
         }
 
-        ConfigHandler::setAuthentication($options, [
-            self::TYPE => $auth,
-            MacAuthentication::TYPE => $this->getMacToken($auth['token']),
-        ]);
+        if (!isset($options[self::TOKEN_REFRESH_REQUEST])) {
+            ConfigHandler::setAuthentication($options, [
+                self::TYPE => $auth,
+                MacAuthentication::TYPE => $this->getMacToken($auth['token']),
+            ]);
+        }
 
         return $nextHandler($request, $options)->then(
             function (ResponseInterface $response) use ($request, $options, $nextHandler) {
@@ -59,11 +64,11 @@ class OAuthAuthentication implements AuthenticationMiddlewareInterface
             if (
                 !empty($auth['token'])
                 && isset($auth['token']['refresh_token'])
-                && !isset($auth['token_refresh_attempted'])
+                && !isset($auth[self::REFRESH_ATTEMPTED])
             ) {
                 return $this->repeatWithRefreshedAccessToken($options, $request, $nextHandler);
             } else {
-                throw RequestException::create($request, $response);
+                throw ClientException::create($request, $response);
             }
         }
 
@@ -79,10 +84,10 @@ class OAuthAuthentication implements AuthenticationMiddlewareInterface
         ];
 
         $oauthRequest = $this->apiClient
-            ->createRequestWithParameters(RequestMethodInterface::METHOD_POST, 'token', $parameters);
+            ->createRequest(RequestMethodInterface::METHOD_POST, 'token', new Entity($parameters));
 
-        $token = $this->apiClient->makeRequest($oauthRequest);
-        $auth['token_refresh_attempted'] = true;
+        $token = $this->apiClient->makeRequest($oauthRequest, [self::TOKEN_REFRESH_REQUEST => true]);
+        $auth[self::REFRESH_ATTEMPTED] = true;
         $auth['token'] = $token;
 
         ConfigHandler::setAuthentication($options, [

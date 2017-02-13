@@ -5,11 +5,13 @@ namespace Paysera\Component\RestClientCommon\Util;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use Paysera\Component\RestClientCommon\Authentication\AuthenticationProvider;
+use Paysera\Component\RestClientCommon\Decoder\ResponseBodyDecoder;
+use Paysera\Component\RestClientCommon\Decoder\ResponseDecoder\JsonResponseDecoder;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\BasicAuthentication;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\MacAuthentication;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\OAuthAuthentication;
 use Paysera\Component\RestClientCommon\Client\ApiClient;
-use Paysera\Component\RestClientCommon\Middleware\Exception\RequestException;
+use Paysera\Component\RestClientCommon\Middleware\Exception\RequestExceptionMiddleware;
 
 class ClientFactoryAbstract
 {
@@ -53,12 +55,14 @@ class ClientFactoryAbstract
     protected static function buildClient($baseUrl, array $config)
     {
         $stack = static::getHandlerStack();
-        $client = static::buildApiClient($baseUrl, $stack, $config);
-        $oAuthClient = static::buildApiClient(static::OAUTH_BASE_URL, $stack, $config);
+        $responseBodyDecoder = static::getResponseBodyDecoder();
+
+        $client = static::buildApiClient($baseUrl, $stack, $config, $responseBodyDecoder);
+        $oAuthClient = static::buildApiClient(static::OAUTH_BASE_URL, $stack, $config, $responseBodyDecoder);
 
         static::addSecurity($stack, $oAuthClient);
 
-        $stack->push((new RequestException())->getMiddlewareFunction());
+        $stack->unshift((new RequestExceptionMiddleware())->getMiddlewareFunction());
 
         return $client;
     }
@@ -80,20 +84,34 @@ class ClientFactoryAbstract
         }
     }
 
+    protected static function getResponseBodyDecoder()
+    {
+        $decoder = new ResponseBodyDecoder();
+
+        $decoder->addDecoder(new JsonResponseDecoder(), 'application/json');
+
+        return $decoder;
+    }
+
     /**
      * @param string $baseUrl
      * @param HandlerStack $stack
      * @param array $config
+     * @param ResponseBodyDecoder $responseBodyDecoder
      * @return ApiClient
      */
-    private static function buildApiClient($baseUrl, HandlerStack $stack, array $config)
-    {
+    private static function buildApiClient(
+        $baseUrl,
+        HandlerStack $stack,
+        array $config,
+        ResponseBodyDecoder $responseBodyDecoder
+    ) {
         $config['base_uri'] = $baseUrl;
         $config['handler'] = $stack;
         $config['http_errors'] = false;
 
         $client = new Client($config);
 
-        return new ApiClient($client);
+        return new ApiClient($client, $responseBodyDecoder);
     }
 }

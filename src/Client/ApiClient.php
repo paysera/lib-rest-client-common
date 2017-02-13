@@ -6,36 +6,48 @@ use Fig\Http\Message\RequestMethodInterface;
 use Fig\Http\Message\StatusCodeInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Request;
+use Paysera\Component\RestClientCommon\Decoder\ResponseBodyDecoder;
 use Paysera\Component\RestClientCommon\Entity\Entity;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class ApiClient
 {
     private $client;
+    private $responseBodyDecoder;
 
-    public function __construct(ClientInterface $client)
-    {
+    public function __construct(
+        ClientInterface $client,
+        ResponseBodyDecoder $responseBodyDecoder
+    ) {
         $this->client = $client;
+        $this->responseBodyDecoder = $responseBodyDecoder;
     }
 
     /**
      * @param RequestInterface $request
-     * @return array|null
+     * @param array $options
+     * @return array
      */
-    public function makeRequest(RequestInterface $request)
+    public function makeRequest(RequestInterface $request, array $options = [])
     {
-        $response = $this->client->send($request);
+        $response = $this->makeRawRequest($request, $options);
 
         if ($response->getStatusCode() === StatusCodeInterface::STATUS_NO_CONTENT) {
             return null;
         }
 
-        $body = $response->getBody()->getContents();
-        if (empty($body)) {
-            return null;
-        }
+        return $this->responseBodyDecoder->decodeContent($response->getHeaderLine('Content-Type'), $response);
+    }
 
-        return \GuzzleHttp\json_decode($body, true);
+    /**
+     * @param RequestInterface $request
+     * @param array $options
+     * @return ResponseInterface
+     */
+    public function makeRawRequest(RequestInterface $request, array $options = [])
+    {
+        return $this->client->send($request, $options);
     }
 
     /**
@@ -66,7 +78,7 @@ class ApiClient
                 $request = $request->withUri($uri);
             } else {
                 $data = \GuzzleHttp\json_encode($parameters);
-                $request = $request->withBody(\GuzzleHttp\Psr7\stream_for($data));
+                $request = $this->createRequestWithContent($method, $uri, $data);
             }
         }
 
@@ -76,7 +88,7 @@ class ApiClient
     /**
      * @param string $method
      * @param string $uri
-     * @param resource|null $content
+     * @param resource|string|null $content
      * @return RequestInterface
      */
     public function createRequestWithContent($method, $uri, $content)
