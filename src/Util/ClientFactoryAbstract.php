@@ -8,6 +8,7 @@ use Paysera\Component\RestClientCommon\Authentication\AuthenticationProvider;
 use Paysera\Component\RestClientCommon\Decoder\ResponseBodyDecoder;
 use Paysera\Component\RestClientCommon\Decoder\ResponseDecoder\JsonResponseDecoder;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\BasicAuthentication;
+use Paysera\Component\RestClientCommon\Middleware\Authentication\ClientCertificateAuthentication;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\MacAuthentication;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\OAuthAuthentication;
 use Paysera\Component\RestClientCommon\Client\ApiClient;
@@ -17,6 +18,12 @@ class ClientFactoryAbstract
 {
     const DEFAULT_BASE_URL = '';
     const OAUTH_BASE_URL = 'https://wallet.paysera.com/oauth/v1/';
+    const AVAILABLE_CLIENT_TYPES = [
+        BasicAuthentication::TYPE,
+        OAuthAuthentication::TYPE,
+        MacAuthentication::TYPE,
+        ClientCertificateAuthentication::TYPE,
+    ];
 
     public static function create(array $options)
     {
@@ -27,21 +34,17 @@ class ClientFactoryAbstract
             $baseUrl = $options['base_url'];
         }
 
-        if (isset($options[BasicAuthentication::TYPE])) {
-            ConfigHandler::setAuthentication(
-                $config,
-                [
-                    BasicAuthentication::TYPE => $options[BasicAuthentication::TYPE],
-                ]
-            );
-        }
-        if (isset($options[OAuthAuthentication::TYPE])) {
-            ConfigHandler::setAuthentication(
-                $config,
-                [
-                    OAuthAuthentication::TYPE => $options[OAuthAuthentication::TYPE],
-                ]
-            );
+        foreach (self::AVAILABLE_CLIENT_TYPES as $type) {
+            if (isset($options[$type])) {
+                ConfigHandler::setAuthentication(
+                    $config,
+                    [
+                        $type => $options[$type],
+                    ]
+                );
+
+                break;
+            }
         }
 
         return new static(static::buildClient($baseUrl, $config));
@@ -77,6 +80,7 @@ class ClientFactoryAbstract
         $authProvider = new AuthenticationProvider();
         $authProvider->addMiddleware(new BasicAuthentication());
         $authProvider->addMiddleware(new MacAuthentication());
+        $authProvider->addMiddleware(new ClientCertificateAuthentication());
         $authProvider->addMiddleware(new OAuthAuthentication($oAuthClient), 200);
 
         foreach ($authProvider->getMiddlewares() as $middleware) {
