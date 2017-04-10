@@ -87,5 +87,3 @@ $testClient = $clientFactory->getTestClient();
 $data = $testClient->getSomething();
 
 ```
-
-After these steps, you can use all methods in `CategoryClient`.
