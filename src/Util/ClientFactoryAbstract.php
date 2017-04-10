@@ -18,7 +18,8 @@ class ClientFactoryAbstract
 {
     const DEFAULT_BASE_URL = '';
     const OAUTH_BASE_URL = 'https://wallet.paysera.com/oauth/v1/';
-    const AVAILABLE_CLIENT_TYPES = [
+
+    private static $availableAuthTypes = [
         BasicAuthentication::TYPE,
         OAuthAuthentication::TYPE,
         MacAuthentication::TYPE,
@@ -34,7 +35,7 @@ class ClientFactoryAbstract
             $baseUrl = $options['base_url'];
         }
 
-        foreach (self::AVAILABLE_CLIENT_TYPES as $type) {
+        foreach (self::$availableAuthTypes as $type) {
             if (isset($options[$type])) {
                 ConfigHandler::setAuthentication(
                     $config,

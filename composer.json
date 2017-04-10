@@ -3,7 +3,11 @@
   "description": "Base classes/helpers used in REST Clients",
   "autoload": {
     "psr-4": {
-      "Paysera\\Component\\RestClientCommon\\": "src",
+      "Paysera\\Component\\RestClientCommon\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
       "Paysera\\Component\\RestClientCommon\\Tests\\": "tests"
     }
   },
