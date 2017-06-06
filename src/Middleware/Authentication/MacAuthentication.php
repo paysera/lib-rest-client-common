@@ -100,10 +100,17 @@ class MacAuthentication implements AuthenticationMiddlewareInterface
             $request->getMethod(),
             $request->getUri()->getPath(),
             $request->getUri()->getHost(),
-            $request->getUri()->getPort(),
+            $request->getUri()->getPort() !== null
+                ? $request->getUri()->getPort()
+                : $this->extractPortFromRequest($request),
             $ext,
             ''
         ]);
         return base64_encode(hash_hmac('sha256', $normalizedRequest, $secret, true));
+    }
+
+    protected function extractPortFromRequest(RequestInterface $request)
+    {
+        return $request->getUri()->getScheme() === 'https' ? 443 : 80;
     }
 }
