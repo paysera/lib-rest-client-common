@@ -74,7 +74,7 @@ class ApiClient
 
         if ($parameters !== null) {
             if ($method === RequestMethodInterface::METHOD_GET) {
-                $uri = $request->getUri()->withQuery(\GuzzleHttp\Psr7\build_query($parameters));
+                $uri = $request->getUri()->withQuery(http_build_query($parameters));
                 $request = $request->withUri($uri);
             } else {
                 $data = \GuzzleHttp\json_encode($parameters);
