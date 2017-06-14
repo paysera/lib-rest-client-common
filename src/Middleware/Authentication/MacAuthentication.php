@@ -2,6 +2,7 @@
 
 namespace Paysera\Component\RestClientCommon\Middleware\Authentication;
 
+use GuzzleHttp\Psr7\Uri;
 use Paysera\Component\RestClientCommon\Exception\AuthenticationConfigurationException;
 use Paysera\Component\RestClientCommon\Util\ConfigHandler;
 use Psr\Http\Message\RequestInterface;
@@ -98,7 +99,7 @@ class MacAuthentication implements AuthenticationMiddlewareInterface
             $timestamp,
             $nonce,
             $request->getMethod(),
-            $request->getUri()->getPath(),
+            Uri::composeComponents(null, null, $request->getUri()->getPath(), $request->getUri()->getQuery(), null),
             $request->getUri()->getHost(),
             $request->getUri()->getPort() !== null
                 ? $request->getUri()->getPort()
