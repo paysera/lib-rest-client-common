@@ -1,4 +1,4 @@
-## lib-rest-client-common
+## lib-rest-client-common ![](https://travis-ci.org/paysera/lib-rest-client-common.svg?branch=master)
 
 Generic library for RESTful API clients
 
