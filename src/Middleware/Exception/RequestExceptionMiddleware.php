@@ -22,6 +22,7 @@ class RequestExceptionMiddleware
                 if ($code >= StatusCodeInterface::STATUS_BAD_REQUEST) {
                     throw ClientException::create($request, $response);
                 }
+
                 return $response;
             }
         );
