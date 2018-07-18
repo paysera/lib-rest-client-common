@@ -14,10 +14,10 @@ use Paysera\Component\RestClientCommon\Middleware\Authentication\OAuthAuthentica
 use Paysera\Component\RestClientCommon\Client\ApiClient;
 use Paysera\Component\RestClientCommon\Middleware\Exception\RequestExceptionMiddleware;
 
-class ClientFactoryAbstract
+abstract class ClientFactoryAbstract
 {
     const DEFAULT_BASE_URL = '';
-    const OAUTH_BASE_URL = 'https://wallet.paysera.com/oauth/v1/';
+    const AUTH_BASE_URL = 'https://wallet.paysera.com/oauth/v1/';
 
     private static $availableAuthTypes = [
         BasicAuthentication::TYPE,
@@ -26,57 +26,46 @@ class ClientFactoryAbstract
         ClientCertificateAuthentication::TYPE,
     ];
 
+    /**
+     * @deprecated create by using 'new' keyword
+     *
+     * @param array $options
+     * @return ClientFactoryAbstract
+     */
     public static function create(array $options)
+    {
+        return new static($options);
+    }
+
+    public function createApiClient(array $options)
     {
         $config = [];
         $baseUrl = static::DEFAULT_BASE_URL;
+        $authBaseUrl = static::AUTH_BASE_URL;
 
         if (isset($options['base_url'])) {
             $baseUrl = $options['base_url'];
         }
+        if (isset($options['auth_base_url'])) {
+            $authBaseUrl = $options['auth_base_url'];
+        }
 
         foreach (self::$availableAuthTypes as $type) {
             if (isset($options[$type])) {
-                ConfigHandler::setAuthentication(
-                    $config,
-                    [
-                        $type => $options[$type],
-                    ]
-                );
-
+                ConfigHandler::setAuthentication($config, [$type => $options[$type]]);
                 break;
             }
         }
 
-        return new static(static::buildClient($baseUrl, $config));
+        return $this->buildClient($baseUrl, $authBaseUrl, $config, $options);
     }
 
-    /**
-     * @param string $baseUrl
-     * @param array $config
-     * @return ApiClient
-     */
-    protected static function buildClient($baseUrl, array $config)
-    {
-        $stack = static::getHandlerStack();
-        $responseBodyDecoder = static::getResponseBodyDecoder();
-
-        $client = static::buildApiClient($baseUrl, $stack, $config, $responseBodyDecoder);
-        $oAuthClient = static::buildApiClient(static::OAUTH_BASE_URL, $stack, $config, $responseBodyDecoder);
-
-        static::addSecurity($stack, $oAuthClient);
-
-        $stack->unshift((new RequestExceptionMiddleware())->getMiddlewareFunction());
-
-        return $client;
-    }
-
-    protected static function getHandlerStack()
+    protected function getHandlerStack()
     {
         return HandlerStack::create();
     }
 
-    protected static function addSecurity(HandlerStack $stack, ApiClient $oAuthClient)
+    protected function addSecurity(HandlerStack $stack, ApiClient $oAuthClient)
     {
         $authProvider = new AuthenticationProvider();
         $authProvider->addMiddleware(new BasicAuthentication());
@@ -89,10 +78,9 @@ class ClientFactoryAbstract
         }
     }
 
-    protected static function getResponseBodyDecoder()
+    protected function getResponseBodyDecoder()
     {
         $decoder = new ResponseBodyDecoder();
-
         $decoder->addDecoder(new JsonResponseDecoder(), 'application/json');
 
         return $decoder;
@@ -100,16 +88,40 @@ class ClientFactoryAbstract
 
     /**
      * @param string $baseUrl
+     * @param string $authBaseUrl
+     * @param array $config
+     * @param array $options
+     * @return ApiClient
+     */
+    private function buildClient($baseUrl, $authBaseUrl, array $config, array $options)
+    {
+        $stack = $this->getHandlerStack();
+        $responseBodyDecoder = $this->getResponseBodyDecoder();
+
+        $client = $this->buildApiClient($baseUrl, $stack, $config, $responseBodyDecoder, $options);
+        $oAuthClient = $this->buildApiClient($authBaseUrl, $stack, $config, $responseBodyDecoder, $options);
+
+        $this->addSecurity($stack, $oAuthClient);
+
+        $stack->unshift((new RequestExceptionMiddleware())->getMiddlewareFunction());
+
+        return $client;
+    }
+
+    /**
+     * @param string $baseUrl
      * @param HandlerStack $stack
      * @param array $config
      * @param ResponseBodyDecoder $responseBodyDecoder
+     * @param array $options
      * @return ApiClient
      */
-    private static function buildApiClient(
+    private function buildApiClient(
         $baseUrl,
         HandlerStack $stack,
         array $config,
-        ResponseBodyDecoder $responseBodyDecoder
+        ResponseBodyDecoder $responseBodyDecoder,
+        array $options
     ) {
         $config['base_uri'] = $baseUrl;
         $config['handler'] = $stack;
@@ -117,6 +129,6 @@ class ClientFactoryAbstract
 
         $client = new Client($config);
 
-        return new ApiClient($client, $responseBodyDecoder);
+        return new ApiClient($client, $responseBodyDecoder, $this, $options);
     }
 }

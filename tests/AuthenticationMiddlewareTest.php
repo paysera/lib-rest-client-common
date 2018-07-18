@@ -53,7 +53,7 @@ class AuthenticationMiddlewareTest extends TestCase
             ])
         );
 
-        $factory = TestClientFactory::create($config);
+        $factory = new TestClientFactory($config);
         $client = $factory->getTestClient();
 
         // first time access_token is OK
@@ -96,7 +96,7 @@ class AuthenticationMiddlewareTest extends TestCase
                 new Response(StatusCodeInterface::STATUS_NO_CONTENT),
             ])
         );
-        $factory = TestClientFactory::create($config);
+        $factory = new TestClientFactory($config);
         $factory->getTestClient()->getSomething();
 
         $history = $factory::getHistory();
@@ -123,7 +123,7 @@ class AuthenticationMiddlewareTest extends TestCase
             ])
         );
 
-        $factory = TestClientFactory::create([]);
+        $factory = new TestClientFactory([]);
         $client = $factory->getTestClient();
         $client->getSomething();
     }

@@ -34,7 +34,7 @@ class MacAuthentication implements AuthenticationMiddlewareInterface
 
         $timestamp = $this->getTimestamp();
         $nonce = $this->generateNonce();
-        $ext = $this->generateExt($request);
+        $ext = $this->generateExt($request, $auth);
         $mac = $this->calculateMac($request, $timestamp, $nonce, $ext, $auth['mac_secret']);
 
         $params = [
@@ -77,13 +77,20 @@ class MacAuthentication implements AuthenticationMiddlewareInterface
         return $nonce;
     }
 
-    private function generateExt(RequestInterface $request)
+    private function generateExt(RequestInterface $request, array $auth)
     {
         $content = $request->getBody()->getContents();
         $extParts = [];
 
         if ($content !== '') {
             $extParts['body_hash'] = base64_encode(hash('sha256', $content, true));
+        }
+        if (
+            isset($auth['parameters'])
+            && is_array($auth['parameters'])
+            && count($auth['parameters']) > 0
+        ) {
+            $extParts = $extParts + $auth['parameters'];
         }
 
         if (count($extParts) > 0) {

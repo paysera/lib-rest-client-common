@@ -14,6 +14,11 @@ class TestClient
         $this->apiClient = $apiClient;
     }
 
+    public function withOptions(array $options)
+    {
+        return new TestClient($this->apiClient->withOptions($options));
+    }
+
     /**
      * @return null
      */

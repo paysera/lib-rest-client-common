@@ -39,7 +39,7 @@ class ClientExceptionTest extends TestCase
             ])
         );
 
-        $factory = TestClientFactory::create($this->config);
+        $factory = new TestClientFactory($this->config);
         $client = $factory->getTestClient();
 
         try {
@@ -67,7 +67,7 @@ class ClientExceptionTest extends TestCase
             ])
         );
 
-        $factory = TestClientFactory::create($this->config);
+        $factory = new TestClientFactory($this->config);
         $client = $factory->getTestClient();
 
         try {
