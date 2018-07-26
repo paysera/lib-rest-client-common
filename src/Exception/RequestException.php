@@ -19,13 +19,13 @@ class RequestException extends \Exception
     /**
      * @param string $message
      * @param RequestInterface $request
-     * @param ResponseInterface|null $response
+     * @param ResponseInterface $response
      * @param \Exception|null $previous
      */
     public function __construct(
         $message,
         RequestInterface $request,
-        ResponseInterface $response = null,
+        ResponseInterface $response,
         \Exception $previous = null
     ) {
         parent::__construct($message, 0, $previous);
@@ -43,7 +43,7 @@ class RequestException extends \Exception
     }
 
     /**
-     * @return null|ResponseInterface
+     * @return ResponseInterface
      */
     public function getResponse()
     {
@@ -110,7 +110,7 @@ class RequestException extends \Exception
         return $this;
     }
 
-    public static function create(RequestInterface $request, ResponseInterface $response = null)
+    public static function create(RequestInterface $request, ResponseInterface $response)
     {
         $exception = new static(null, $request, $response);
 
