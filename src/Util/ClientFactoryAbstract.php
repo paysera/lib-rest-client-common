@@ -7,6 +7,7 @@ use GuzzleHttp\HandlerStack;
 use Paysera\Component\RestClientCommon\Authentication\AuthenticationProvider;
 use Paysera\Component\RestClientCommon\Decoder\ResponseBodyDecoder;
 use Paysera\Component\RestClientCommon\Decoder\ResponseDecoder\JsonResponseDecoder;
+use Paysera\Component\RestClientCommon\Exception\ConfigurationException;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\BasicAuthentication;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\ClientCertificateAuthentication;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\MacAuthentication;
@@ -50,6 +51,8 @@ abstract class ClientFactoryAbstract
             $authBaseUrl = $options['auth_base_url'];
         }
 
+        $baseUrl = $this->parseBaseUrlParameters($baseUrl, $options);
+
         foreach (self::$availableAuthTypes as $type) {
             if (isset($options[$type])) {
                 ConfigHandler::setAuthentication($config, [$type => $options[$type]]);
@@ -84,6 +87,30 @@ abstract class ClientFactoryAbstract
         $decoder->addDecoder(new JsonResponseDecoder(), 'application/json');
 
         return $decoder;
+    }
+
+    /**
+     * @param string $baseUrl
+     * @param array $options
+     *
+     * @return string
+     * @throws ConfigurationException
+     */
+    private function parseBaseUrlParameters($baseUrl, array $options)
+    {
+        preg_match_all('#{([\w|-]+)}#', $baseUrl, $matches);
+        foreach ($matches[1] as $match) {
+            if (!isset($options['url_parameters'][$match])) {
+                throw new ConfigurationException(sprintf(
+                    'Found placeholder {%s} in base_url, but no value provided in url_parameters option',
+                    $match
+                ));
+            }
+            $value = $options['url_parameters'][$match];
+            $baseUrl = strtr($baseUrl, ['{' . $match . '}' => $value]);
+        }
+
+        return $baseUrl;
     }
 
     /**

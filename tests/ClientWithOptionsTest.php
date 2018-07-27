@@ -2,8 +2,10 @@
 
 namespace Paysera\Component\RestClientCommon\Tests;
 
+use Paysera\Component\RestClientCommon\Exception\ConfigurationException;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\MacAuthentication;
 use Paysera\Component\RestClientCommon\Tests\Client\TestClient;
+use Paysera\Component\RestClientCommon\Tests\Client\TestClientFactoryWithBaseUrlParams;
 use Paysera\Component\RestClientCommon\Util\ConfigHandler;
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Psr7\Response;
@@ -14,6 +16,55 @@ use Psr\Http\Message\RequestInterface;
 
 class ClientWithOptionsTest extends TestCase
 {
+    public function testExceptionThrownWhenMissingUrlPlaceholders()
+    {
+        TestClientFactoryWithBaseUrlParams::setHandler(
+            new MockHandler([
+                new Response(StatusCodeInterface::STATUS_NO_CONTENT),
+            ])
+        );
+
+        $this->expectException(ConfigurationException::class);
+        new TestClientFactoryWithBaseUrlParams([]);
+    }
+
+    public function testUrlParametersAreReplacedOnWithOptions()
+    {
+        TestClientFactoryWithBaseUrlParams::setHandler(
+            new MockHandler([
+                new Response(StatusCodeInterface::STATUS_NO_CONTENT),
+                new Response(StatusCodeInterface::STATUS_NO_CONTENT),
+                new Response(StatusCodeInterface::STATUS_NO_CONTENT),
+            ])
+        );
+
+        $factory = new TestClientFactoryWithBaseUrlParams([
+            'url_parameters' => [
+                'locale' => 'en',
+                'shard_id' => 'adasd',
+            ]
+        ]);
+
+        $client1 = $factory->getTestClient();
+        $client1->getSomething();
+
+        /** @var RequestInterface $request */
+        $request = TestClientFactoryWithBaseUrlParams::getHistory()[0]['request'];
+        $this->assertEquals('http://adasd.example.com/test/rest/v1/en/something', (string)$request->getUri());
+
+        $client2 = $client1->withOptions(['url_parameters' => ['locale' => 'de']]);
+        $client2->getSomething();
+
+        /** @var RequestInterface $request */
+        $request = TestClientFactoryWithBaseUrlParams::getHistory()[1]['request'];
+        $this->assertEquals('http://adasd.example.com/test/rest/v1/de/something', (string)$request->getUri());
+
+        $client1->getSomething();
+        /** @var RequestInterface $request */
+        $request = TestClientFactoryWithBaseUrlParams::getHistory()[2]['request'];
+        $this->assertEquals('http://adasd.example.com/test/rest/v1/en/something', (string)$request->getUri());
+    }
+
     public function testMacAddsParametersToExt()
     {
         TestClientFactory::setHandler(

@@ -11,7 +11,7 @@ Simple example of `ClientFactory`:
 ```php
 class TestClientFactory extends ClientFactoryAbstract
 {
-    const DEFAULT_BASE_URL = 'http://example.com/test/rest/v1/';
+    const DEFAULT_BASE_URL = 'http://example.com/test/rest/v1/{locale}/';
     
     private $apiClient;
 
@@ -90,6 +90,10 @@ $clientFactory = new ClientFactory([
         'parameters' => [
             // list of needed parameters
         ]
+    ],
+    'url_parameters' => [
+        'locale' => 'en',
+        // list of base_url placeholder parameter values
     ]
     // other configuration options
 ]);

@@ -26,7 +26,7 @@ class TestClient
     {
         $request = $this->apiClient->createRequest(
             RequestMethodInterface::METHOD_GET,
-            sprintf('/something'),
+            sprintf('something'),
             null
         );
         return $this->apiClient->makeRequest($request);
