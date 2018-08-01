@@ -9,6 +9,7 @@ use Paysera\Component\RestClientCommon\Decoder\ResponseBodyDecoder;
 use Paysera\Component\RestClientCommon\Decoder\ResponseDecoder\JsonResponseDecoder;
 use Paysera\Component\RestClientCommon\Exception\ConfigurationException;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\BasicAuthentication;
+use Paysera\Component\RestClientCommon\Middleware\Authentication\BearerAuthentication;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\ClientCertificateAuthentication;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\MacAuthentication;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\OAuthAuthentication;
@@ -22,6 +23,7 @@ abstract class ClientFactoryAbstract
 
     private static $availableAuthTypes = [
         BasicAuthentication::TYPE,
+        BearerAuthentication::TYPE,
         OAuthAuthentication::TYPE,
         MacAuthentication::TYPE,
         ClientCertificateAuthentication::TYPE,
@@ -72,6 +74,7 @@ abstract class ClientFactoryAbstract
     {
         $authProvider = new AuthenticationProvider();
         $authProvider->addMiddleware(new BasicAuthentication());
+        $authProvider->addMiddleware(new BearerAuthentication());
         $authProvider->addMiddleware(new MacAuthentication());
         $authProvider->addMiddleware(new ClientCertificateAuthentication());
         $authProvider->addMiddleware(new OAuthAuthentication($oAuthClient), 200);
