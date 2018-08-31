@@ -94,7 +94,10 @@ $clientFactory = new ClientFactory([
     'url_parameters' => [
         'locale' => 'en',
         // list of base_url placeholder parameter values
-    ]
+    ],
+    'headers' => [
+        'Accept-Language' => 'en',
+    ],
     // other configuration options
 ]);
 

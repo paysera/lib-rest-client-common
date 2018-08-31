@@ -7,6 +7,12 @@ class ConfigHandler
     const CONFIG_NAMESPACE = 'paysera';
     const KEY_AUTHENTICATION = 'authentication';
 
+    private static $whitelistedConfiguration = [
+        'proxy',
+        'cookies',
+        'headers',
+    ];
+
     /**
      * @param array $config
      * @param string $parameter
@@ -39,5 +45,14 @@ class ConfigHandler
     public static function setAuthentication(array &$config, array $auth)
     {
         $config[self::CONFIG_NAMESPACE][self::KEY_AUTHENTICATION] = $auth;
+    }
+
+    public static function appendConfiguration(array &$config, array $options)
+    {
+        $optionsToAppend = array_filter($options, function($option) {
+            return in_array($option, self::$whitelistedConfiguration, true);
+        }, ARRAY_FILTER_USE_KEY);
+
+        $config = array_merge($config, $optionsToAppend);
     }
 }
