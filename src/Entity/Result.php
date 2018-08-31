@@ -69,6 +69,38 @@ abstract class Result extends Entity implements Iterator, Countable
     }
 
     /**
+     * @return string|null
+     */
+    public function getCursorBefore()
+    {
+        return isset($this->getMetadata()['cursors']['before']) ? $this->getMetadata()['cursors']['before'] : null;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCursorAfter()
+    {
+        return isset($this->getMetadata()['cursors']['after']) ? $this->getMetadata()['cursors']['after'] : null;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasNext()
+    {
+        return isset($this->getMetadata()['has_next']) ? $this->getMetadata()['has_next'] : false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasPrevious()
+    {
+        return isset($this->getMetadata()['has_previous']) ? $this->getMetadata()['has_previous'] : false;
+    }
+
+    /**
      * @return int|null
      */
     public function getTotal()

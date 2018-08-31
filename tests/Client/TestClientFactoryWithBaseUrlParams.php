@@ -6,9 +6,9 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use Paysera\Component\RestClientCommon\Util\ClientFactoryAbstract;
 
-class TestClientFactory extends ClientFactoryAbstract
+class TestClientFactoryWithBaseUrlParams extends ClientFactoryAbstract
 {
-    const DEFAULT_BASE_URL = 'http://example.com/test/rest/v1/';
+    const DEFAULT_BASE_URL = 'http://{shard_id}.example.com/test/rest/v1/{locale}/';
 
     private static $history = [];
     private static $handler;

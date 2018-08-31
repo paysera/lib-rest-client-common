@@ -2,6 +2,8 @@
 
 namespace Paysera\Component\RestClientCommon\Exception;
 
+use RuntimeException;
+use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -9,17 +11,21 @@ class RequestException extends \Exception
 {
     private $request;
     private $response;
+    private $error;
+    private $errors;
+    private $errorProperties;
+    private $errorDescription;
 
     /**
      * @param string $message
      * @param RequestInterface $request
-     * @param ResponseInterface|null $response
+     * @param ResponseInterface $response
      * @param \Exception|null $previous
      */
     public function __construct(
         $message,
         RequestInterface $request,
-        ResponseInterface $response = null,
+        ResponseInterface $response,
         \Exception $previous = null
     ) {
         parent::__construct($message, 0, $previous);
@@ -37,15 +43,104 @@ class RequestException extends \Exception
     }
 
     /**
-     * @return null|ResponseInterface
+     * @return ResponseInterface
      */
     public function getResponse()
     {
         return $this->response;
     }
 
-    public static function create(RequestInterface $request, ResponseInterface $response = null)
+    /**
+     * @return null|string
+     */
+    public function getError()
     {
-        return new static(null, $request, $response);
+        return $this->error;
+    }
+
+    private function setError($error)
+    {
+        $this->error = $error;
+
+        return $this;
+    }
+
+    /**
+     * @return null|array
+     */
+    public function getErrors()
+    {
+        return $this->errors;
+    }
+
+    private function setErrors($errors)
+    {
+        $this->errors = $errors;
+
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getErrorDescription()
+    {
+        return $this->errorDescription;
+    }
+
+    private function setErrorDescription($errorDescription)
+    {
+        $this->errorDescription  = $errorDescription;
+
+        return $this;
+    }
+
+    /**
+     * @return null|array
+     */
+    public function getErrorProperties()
+    {
+        return $this->errorProperties;
+    }
+
+    private function setErrorProperties($errorProperties)
+    {
+        $this->errorProperties = $errorProperties;
+
+        return $this;
+    }
+
+    public static function create(RequestInterface $request, ResponseInterface $response)
+    {
+        $exception = new static(null, $request, $response);
+
+        if (!$response->getBody()->isReadable()) {
+            return $exception;
+        }
+
+        try {
+            $decodedResponse = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
+        } catch (RuntimeException $runtimeException) {
+            return $exception;
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            return $exception;
+        } finally {
+            $response->getBody()->rewind();
+        }
+
+        if (isset($decodedResponse['error'])) {
+            $exception->setError($decodedResponse['error']);
+        }
+        if (isset($decodedResponse['errors'])) {
+            $exception->setErrors($decodedResponse['errors']);
+        }
+        if (isset($decodedResponse['error_description'])) {
+            $exception->setErrorDescription($decodedResponse['error_description']);
+        }
+        if (isset($decodedResponse['error_properties'])) {
+            $exception->setErrorProperties($decodedResponse['error_properties']);
+        }
+
+        return $exception;
     }
 }

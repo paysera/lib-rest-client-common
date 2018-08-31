@@ -37,6 +37,22 @@ class Filter extends Entity
     }
 
     /**
+     * @return string
+     */
+    public function getAfter()
+    {
+        return $this->get('after');
+    }
+
+    /**
+     * @return string
+     */
+    public function getBefore()
+    {
+        return $this->get('before');
+    }
+
+    /**
      * @param int $limit
      * @return $this
      */
@@ -73,6 +89,26 @@ class Filter extends Entity
     public function setOrderDirection($orderDirection)
     {
         $this->set('order_direction', $orderDirection);
+        return $this;
+    }
+
+    /**
+     * @param string $after
+     * @return $this
+     */
+    public function setAfter($after)
+    {
+        $this->set('after', $after);
+        return $this;
+    }
+
+    /**
+     * @param string $before
+     * @return $this
+     */
+    public function setBefore($before)
+    {
+        $this->set('before', $before);
         return $this;
     }
 }

@@ -3,7 +3,11 @@
   "description": "Base classes/helpers used in REST Clients",
   "autoload": {
     "psr-4": {
-      "Paysera\\Component\\RestClientCommon\\": "src",
+      "Paysera\\Component\\RestClientCommon\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
       "Paysera\\Component\\RestClientCommon\\Tests\\": "tests"
     }
   },
@@ -12,9 +16,13 @@
     "psr/http-message": "^1.0",
     "guzzlehttp/guzzle": "^6.0",
     "fig/http-message-util": "^1.0",
-    "phpunit/phpunit": "^6.0"
+    "guzzlehttp/psr7": "^1.4"
   },
   "minimum-stability": "stable",
   "require-dev": {
+    "phpunit/phpunit": "^5.0"
+  },
+  "config": {
+    "bin-dir": "bin"
   }
 }

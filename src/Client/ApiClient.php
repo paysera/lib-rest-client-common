@@ -8,6 +8,7 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Request;
 use Paysera\Component\RestClientCommon\Decoder\ResponseBodyDecoder;
 use Paysera\Component\RestClientCommon\Entity\Entity;
+use Paysera\Component\RestClientCommon\Util\ClientFactoryAbstract;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -15,13 +16,25 @@ class ApiClient
 {
     private $client;
     private $responseBodyDecoder;
+    private $clientFactory;
+    private $options;
 
     public function __construct(
         ClientInterface $client,
-        ResponseBodyDecoder $responseBodyDecoder
+        ResponseBodyDecoder $responseBodyDecoder,
+        ClientFactoryAbstract $clientFactory,
+        array $options
     ) {
         $this->client = $client;
         $this->responseBodyDecoder = $responseBodyDecoder;
+        $this->clientFactory = $clientFactory;
+        $this->options = $options;
+    }
+
+    public function withOptions(array $options)
+    {
+        $combinedOptions = array_replace_recursive($this->options, $options);
+        return $this->clientFactory->createApiClient($combinedOptions);
     }
 
     /**
@@ -74,7 +87,7 @@ class ApiClient
 
         if ($parameters !== null) {
             if ($method === RequestMethodInterface::METHOD_GET) {
-                $uri = $request->getUri()->withQuery(\GuzzleHttp\Psr7\build_query($parameters));
+                $uri = $request->getUri()->withQuery(http_build_query($parameters));
                 $request = $request->withUri($uri);
             } else {
                 $data = \GuzzleHttp\json_encode($parameters);

@@ -39,7 +39,7 @@ class AuthenticationProvider
     public function getMiddlewares()
     {
         if (empty($this->middlewares)) {
-            return [];
+            return;
         }
 
         /** @var AuthenticationMiddlewareInterface[] $middlewares */
