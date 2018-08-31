@@ -138,6 +138,39 @@ class ClientWithOptionsTest extends TestCase
         $this->checkClientHasMacParameters($client3, 'xyz', $macSecret, 4);
     }
 
+    public function testAdditionalConfigurationAppendedInWithOptions()
+    {
+        TestClientFactory::setHandler(
+            new MockHandler([
+                new Response(StatusCodeInterface::STATUS_NO_CONTENT),
+                new Response(StatusCodeInterface::STATUS_NO_CONTENT),
+            ])
+        );
+
+        $factory = new TestClientFactory([]);
+
+        $client1 = $factory->getTestClient();
+        $client1->getSomething();
+
+        $history = TestClientFactory::getHistory();
+
+        /** @var RequestInterface $request */
+        $request = $history[0]['request'];
+
+        $this->assertCount(0, $request->getHeader('Accept-Language'));
+
+        $client2 = $client1->withOptions(['headers' => ['Accept-Language' => 'lt']]);
+        $client2->getSomething();
+
+        $history = TestClientFactory::getHistory();
+
+        /** @var RequestInterface $request */
+        $request = $history[1]['request'];
+
+        $this->assertCount(1, $request->getHeader('Accept-Language'));
+        $this->assertEquals('lt', $request->getHeader('Accept-Language')[0]);
+    }
+
     private function checkClientHasMacParameters(TestClient $client, $macId, $macSecret, $historyIndex)
     {
         $client->getSomething();
