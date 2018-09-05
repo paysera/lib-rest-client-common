@@ -62,6 +62,8 @@ abstract class ClientFactoryAbstract
             }
         }
 
+        ConfigHandler::appendConfiguration($config, $options);
+
         return $this->buildClient($baseUrl, $authBaseUrl, $config, $options);
     }
 
