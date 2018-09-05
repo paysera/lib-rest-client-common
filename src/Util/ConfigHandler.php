@@ -49,9 +49,13 @@ class ConfigHandler
 
     public static function appendConfiguration(array &$config, array $options)
     {
-        $optionsToAppend = array_filter($options, function($option) {
-            return in_array($option, self::$whitelistedConfiguration, true);
-        }, ARRAY_FILTER_USE_KEY);
+        $optionsToAppend = [];
+
+        foreach ($options as $option => $value) {
+            if (in_array($option, self::$whitelistedConfiguration, true)) {
+                $optionsToAppend[$option] = $value;
+            }
+        }
 
         $config = array_merge($config, $optionsToAppend);
     }
