@@ -91,7 +91,9 @@ class ApiClient
                 $request = $request->withUri($uri);
             } else {
                 $data = \GuzzleHttp\json_encode($parameters);
-                $request = $this->createRequestWithContent($method, $uri, $data);
+                $request = $this
+                    ->createRequestWithContent($method, $uri, $data)
+                    ->withHeader('Content-Type', 'application/json');
             }
         }
 

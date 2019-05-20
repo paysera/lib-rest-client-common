@@ -4,17 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-# 2.3.0
-# Added
+## 2.3.1
+### Added
+- If request body contains JSON, `Content-Type: application/json` will be set
+
+## 2.3.0
+### Added
 - Library now accepts `headers`, `proxy` and `cookies` configuration.
 
-# 2.2.0
-# Added
+## 2.2.0
+### Added
 - BearerAuthentication middleware added
 
 
-# 2.1.0
-#Added
+## 2.1.0
+### Added
 - Placeholder in format `{name}` parsing supported in `base_url`. You should pass values to placeholders with `url_parameters` array to `options`.
 
 
