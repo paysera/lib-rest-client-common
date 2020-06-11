@@ -62,7 +62,7 @@ abstract class ClientFactoryAbstract
             }
         }
 
-        ConfigHandler::appendConfiguration($config, $options);
+        $config = array_merge($config, $options);
 
         return $this->buildClient($baseUrl, $authBaseUrl, $config, $options);
     }
