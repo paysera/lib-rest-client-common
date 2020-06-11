@@ -6,6 +6,9 @@ use Paysera\Component\RestClientCommon\Decoder\ResponseDecoder\ResponseDecoderIn
 use Paysera\Component\RestClientCommon\Exception\UnsupportedContentTypeException;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * @internal
+ */
 class ResponseBodyDecoder
 {
     /**

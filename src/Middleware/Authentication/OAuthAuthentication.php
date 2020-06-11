@@ -12,6 +12,9 @@ use Paysera\Component\RestClientCommon\Util\ConfigHandler;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * @internal
+ */
 class OAuthAuthentication implements AuthenticationMiddlewareInterface
 {
     const TYPE = 'oauth';

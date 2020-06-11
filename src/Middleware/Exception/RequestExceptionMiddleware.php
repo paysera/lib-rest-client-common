@@ -8,6 +8,9 @@ use Paysera\Component\RestClientCommon\Exception\ServerException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * @internal
+ */
 class RequestExceptionMiddleware
 {
     public function __invoke(callable $nextHandler, RequestInterface $request, array $options)

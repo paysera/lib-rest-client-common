@@ -5,6 +5,9 @@ namespace Paysera\Component\RestClientCommon\Middleware\Authentication;
 use GuzzleHttp\Promise\PromiseInterface;
 use Psr\Http\Message\RequestInterface;
 
+/**
+ * @api
+ */
 interface AuthenticationMiddlewareInterface
 {
     /**

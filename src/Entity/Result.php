@@ -5,6 +5,9 @@ namespace Paysera\Component\RestClientCommon\Entity;
 use Countable;
 use Iterator;
 
+/**
+ * @api
+ */
 abstract class Result extends Entity implements Iterator, Countable
 {
     const METADATA_KEY = '_metadata';

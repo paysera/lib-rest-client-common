@@ -2,6 +2,9 @@
 
 namespace Paysera\Component\RestClientCommon\Util;
 
+/**
+ * @internal 
+ */
 class ConfigHandler
 {
     const CONFIG_NAMESPACE = 'paysera';

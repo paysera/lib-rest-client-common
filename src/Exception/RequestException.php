@@ -7,6 +7,9 @@ use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * @api
+ */
 class RequestException extends \Exception
 {
     private $request;

@@ -12,6 +12,9 @@ use Paysera\Component\RestClientCommon\Util\ClientFactoryAbstract;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * @api
+ */
 class ApiClient
 {
     private $client;
