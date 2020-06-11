@@ -5,6 +5,9 @@ namespace Paysera\Component\RestClientCommon\Authentication;
 use Paysera\Component\RestClientCommon\Exception\AuthenticationConfigurationException;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\AuthenticationMiddlewareInterface;
 
+/**
+ * @internal 
+ */
 class AuthenticationProvider
 {
     /**

@@ -16,6 +16,9 @@ use Paysera\Component\RestClientCommon\Middleware\Authentication\OAuthAuthentica
 use Paysera\Component\RestClientCommon\Client\ApiClient;
 use Paysera\Component\RestClientCommon\Middleware\Exception\RequestExceptionMiddleware;
 
+/**
+ * @api
+ */
 abstract class ClientFactoryAbstract
 {
     const DEFAULT_BASE_URL = '';
@@ -62,7 +65,7 @@ abstract class ClientFactoryAbstract
             }
         }
 
-        ConfigHandler::appendConfiguration($config, $options);
+        $config = array_merge($config, $options);
 
         return $this->buildClient($baseUrl, $authBaseUrl, $config, $options);
     }

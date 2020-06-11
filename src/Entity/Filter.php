@@ -2,6 +2,9 @@
 
 namespace Paysera\Component\RestClientCommon\Entity;
 
+/**
+ * @api
+ */
 class Filter extends Entity
 {
     /**

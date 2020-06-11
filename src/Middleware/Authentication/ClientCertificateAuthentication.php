@@ -7,6 +7,9 @@ use Psr\Http\Message\RequestInterface;
 use Paysera\Component\RestClientCommon\Util\ConfigHandler;
 use Paysera\Component\RestClientCommon\Exception\AuthenticationConfigurationException;
 
+/**
+ * @internal
+ */
 class ClientCertificateAuthentication implements AuthenticationMiddlewareInterface
 {
     const TYPE = 'client_certificate';

@@ -4,6 +4,9 @@ namespace Paysera\Component\RestClientCommon\Entity;
 
 use ArrayAccess;
 
+/**
+ * @api
+ */
 class Entity implements ArrayAccess
 {
     protected $data;

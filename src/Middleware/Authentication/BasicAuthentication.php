@@ -6,6 +6,9 @@ use Paysera\Component\RestClientCommon\Exception\AuthenticationConfigurationExce
 use Paysera\Component\RestClientCommon\Util\ConfigHandler;
 use Psr\Http\Message\RequestInterface;
 
+/**
+ * @internal
+ */
 class BasicAuthentication implements AuthenticationMiddlewareInterface
 {
     const TYPE = 'basic';

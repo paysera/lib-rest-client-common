@@ -4,6 +4,9 @@ namespace Paysera\Component\RestClientCommon\Decoder\ResponseDecoder;
 
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * @internal
+ */
 interface ResponseDecoderInterface
 {
     /**
