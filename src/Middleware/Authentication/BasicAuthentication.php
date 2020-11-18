@@ -34,10 +34,12 @@ class BasicAuthentication implements AuthenticationMiddlewareInterface
             );
         }
 
-        return base64_encode(sprintf(
+        $credentials = base64_encode(sprintf(
             '%s:%s',
             $auth['username'],
             $auth['password']
         ));
+
+        return sprintf('Basic %s', $credentials);
     }
 }
