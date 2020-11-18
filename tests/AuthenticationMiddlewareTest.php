@@ -109,7 +109,7 @@ class AuthenticationMiddlewareTest extends TestCase
         $auth = $request->getHeaderLine('Authorization');
 
         $this->assertSame(RequestMethodInterface::METHOD_GET, $request->getMethod());
-        $this->assertSame(base64_encode(sprintf('%s:%s', $username, $password)), $auth);
+        $this->assertSame('Basic ' . base64_encode(sprintf('%s:%s', $username, $password)), $auth);
     }
 
     /**
