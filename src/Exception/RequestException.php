@@ -2,6 +2,7 @@
 
 namespace Paysera\Component\RestClientCommon\Exception;
 
+use Exception;
 use RuntimeException;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
@@ -10,7 +11,7 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * @api
  */
-class RequestException extends \Exception
+class RequestException extends Exception
 {
     private $request;
     private $response;
@@ -23,13 +24,13 @@ class RequestException extends \Exception
      * @param string $message
      * @param RequestInterface $request
      * @param ResponseInterface $response
-     * @param \Exception|null $previous
+     * @param Exception|null $previous
      */
     public function __construct(
         $message,
         RequestInterface $request,
         ResponseInterface $response,
-        \Exception $previous = null
+        Exception $previous = null
     ) {
         parent::__construct($message, 0, $previous);
 
@@ -128,7 +129,9 @@ class RequestException extends \Exception
         } catch (InvalidArgumentException $invalidArgumentException) {
             return $exception;
         } finally {
-            $response->getBody()->rewind();
+            if ($response->getBody()->isSeekable()) {
+                $response->getBody()->rewind();
+            }
         }
 
         if (isset($decodedResponse['error'])) {

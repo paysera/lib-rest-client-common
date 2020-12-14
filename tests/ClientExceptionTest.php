@@ -2,6 +2,8 @@
 
 namespace Paysera\Component\RestClientCommon\Tests;
 
+use GuzzleHttp\Psr7\NoSeekStream;
+use GuzzleHttp\Psr7\Utils;
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Handler\MockHandler;
@@ -81,5 +83,28 @@ class ClientExceptionTest extends TestCase
                 $exception->getResponse()->getBody()->getContents()
             );
         }
+    }
+
+    public function testExceptionResponseWhenStreaming()
+    {
+        TestClientFactory::setHandler(
+            new MockHandler([
+                new Response(
+                    StatusCodeInterface::STATUS_BAD_REQUEST,
+                    ['Content-Type' => 'application/json'],
+                    new NoSeekStream(Utils::streamFor(\GuzzleHttp\json_encode([
+                        'error' => 'BAD_REQUEST',
+                        'error_description' => 'Wrong parameters'
+                    ])))
+                ),
+            ])
+        );
+
+        $factory = new TestClientFactory($this->config);
+        $client = $factory->getTestClient();
+
+        $this->setExpectedException(ClientException::class);
+
+        $client->getSomething();
     }
 }
