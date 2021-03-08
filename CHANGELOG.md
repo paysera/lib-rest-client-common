@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.5.0
+### Added
+- Added `Entity/File` to represent a file.
+
 ## 2.4.2
 ### Fixed
 - Throws `RuntimeException` when trying to create `RequestException` and response body is not seekable
