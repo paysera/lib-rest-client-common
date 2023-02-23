@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## 2.6.0
 ### Changed
 - Bumped `guzzlehttp/guzzle` to `^7.0`.
-- Bumped `phpunit/phpunit` to `>=9.0`.
+- Bumped `phpunit/phpunit` to `^9.0|^10.0`.
+- Bumped `guzzlehttp/psr7` to `^2.0`.
 
 ## 2.5.0
 ### Added
