@@ -16,7 +16,7 @@
     "psr/http-message": "^1.0",
     "guzzlehttp/guzzle": "^6.0 | ^7.0",
     "fig/http-message-util": "^1.0",
-    "guzzlehttp/psr7": "^1.4|^2.0"
+    "guzzlehttp/psr7": "^2.0"
   },
   "minimum-stability": "stable",
   "require-dev": {
