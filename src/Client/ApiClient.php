@@ -115,7 +115,11 @@ class ApiClient
         $request = new Request($method, $uri);
 
         if ($content !== null) {
-            $request = $request->withBody(Utils::streamFor($content));
+            if (method_exists(Utils::class, 'streamFor')) {
+                $request = $request->withBody(Utils::streamFor($content));
+            } else {
+                $request = $request->withBody(\GuzzleHttp\Psr7\stream_for($content));
+            }
         }
 
         return $request;
