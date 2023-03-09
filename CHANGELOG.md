@@ -5,10 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## 2.6.1
-### Changed
+### Fixed
 - Changed a "moved" function to work properly with `guzzlehttp/psr7^2.0`.
-- Bumped `guzzlehttp/psr7` to `^2.0`
-- Bumped the version with a major as changes are not backwards compatible.
 
 ## 2.6.0
 ### Changed

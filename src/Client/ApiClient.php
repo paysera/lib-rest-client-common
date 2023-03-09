@@ -13,6 +13,10 @@ use Paysera\Component\RestClientCommon\Util\ClientFactoryAbstract;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
+use Psr\Http\Message\StreamInterface;
+
+use function GuzzleHttp\Psr7\stream_for;
+
 /**
  * @api
  */
@@ -115,13 +119,23 @@ class ApiClient
         $request = new Request($method, $uri);
 
         if ($content !== null) {
-            if (method_exists(Utils::class, 'streamFor')) {
-                $request = $request->withBody(Utils::streamFor($content));
-            } else {
-                $request = $request->withBody(\GuzzleHttp\Psr7\stream_for($content));
-            }
+            $request = $request->withBody($this->streamFor($content));
         }
 
         return $request;
+    }
+
+    /**
+     * @param resource|string|null $content
+     *
+     * @return StreamInterface
+     */
+    private function streamFor($content)
+    {
+        if (method_exists(Utils::class, 'streamFor')) {
+            return Utils::streamFor($content);
+        }
+
+        return stream_for($content);
     }
 }
