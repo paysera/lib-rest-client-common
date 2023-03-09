@@ -6,11 +6,16 @@ use Fig\Http\Message\RequestMethodInterface;
 use Fig\Http\Message\StatusCodeInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Utils;
 use Paysera\Component\RestClientCommon\Decoder\ResponseBodyDecoder;
 use Paysera\Component\RestClientCommon\Entity\Entity;
 use Paysera\Component\RestClientCommon\Util\ClientFactoryAbstract;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+
+use Psr\Http\Message\StreamInterface;
+
+use function GuzzleHttp\Psr7\stream_for;
 
 /**
  * @api
@@ -114,9 +119,23 @@ class ApiClient
         $request = new Request($method, $uri);
 
         if ($content !== null) {
-            $request = $request->withBody(\GuzzleHttp\Psr7\stream_for($content));
+            $request = $request->withBody($this->streamFor($content));
         }
 
         return $request;
+    }
+
+    /**
+     * @param resource|string|null $content
+     *
+     * @return StreamInterface
+     */
+    private function streamFor($content)
+    {
+        if (method_exists(Utils::class, 'streamFor')) {
+            return Utils::streamFor($content);
+        }
+
+        return stream_for($content);
     }
 }
