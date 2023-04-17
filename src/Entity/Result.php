@@ -23,38 +23,42 @@ abstract class Result extends Entity implements Iterator, Countable
         $this->position = 0;
     }
 
+    #[\ReturnTypeWillChange]
     public function current()
     {
         $data = $this->getItems()[$this->position];
         return $this->createItem($data);
     }
 
+    #[\ReturnTypeWillChange]
     public function next()
     {
         ++$this->position;
     }
 
+    #[\ReturnTypeWillChange]
     public function key()
     {
         return $this->position;
     }
 
+    #[\ReturnTypeWillChange]
     public function valid()
     {
        return isset($this->getItems()[$this->position]);
     }
 
+    #[\ReturnTypeWillChange]
     public function rewind()
     {
         $this->position = 0;
     }
 
+    #[\ReturnTypeWillChange]
     public function count()
     {
         return count($this->getItems());
     }
-
-
 
     public function getItems()
     {
