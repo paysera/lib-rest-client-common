@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  lib:
+    container_name: rest-client-common
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+      args:
+        - BASE_CONTAINER=${BASE_CONTAINER}
+        - APACHE_RUN_USER=${APACHE_RUN_USER}
+        - APACHE_RUN_GROUP=${APACHE_RUN_GROUP}
+    volumes:
+      - ./:/home/app/src
+      - ./.docker/supervisor.conf:/etc/supervisor/conf.d/supervisor.conf
+    extra_hosts:
+        - host.docker.internal:host-gateway

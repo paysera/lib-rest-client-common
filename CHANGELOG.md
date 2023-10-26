@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.7.0
+### Changed
+- Minimal version of PHP is increased to `7.4`.
+
+### Fixed
+- Deprecation error in the RequestException class (occurs in PHP 8+ only) was fixed
+
+### Development tools
+- PHPUnit version is narrowed to `^9.0`.
+- Docker wrapper added
+
 ## 2.6.2
 ### Fixed
 - Fixed some deprecation warning temporarily for PHP 8.1.

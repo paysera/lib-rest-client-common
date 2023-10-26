@@ -32,6 +32,7 @@ class RequestException extends Exception
         ResponseInterface $response,
         Exception $previous = null
     ) {
+        $message = ($message === null ? '' : $message);
         parent::__construct($message, 0, $previous);
 
         $this->request = $request;
