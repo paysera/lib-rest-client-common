@@ -16,7 +16,7 @@ class ClientExceptionTest extends TestCase
 {
     private $config;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->config = [
             OAuthAuthentication::TYPE => [
@@ -103,7 +103,7 @@ class ClientExceptionTest extends TestCase
         $factory = new TestClientFactory($this->config);
         $client = $factory->getTestClient();
 
-        $this->setExpectedException(ClientException::class);
+        $this->expectException(ClientException::class);
 
         $client->getSomething();
     }

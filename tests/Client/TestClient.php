@@ -4,6 +4,7 @@ namespace Paysera\Component\RestClientCommon\Tests\Client;
 
 use Fig\Http\Message\RequestMethodInterface;
 use Paysera\Component\RestClientCommon\Client\ApiClient;
+use Paysera\Component\RestClientCommon\Exception\ClientException;
 
 class TestClient
 {
@@ -20,6 +21,7 @@ class TestClient
     }
 
     /**
+     * @throws ClientException
      * @return null
      */
     public function getSomething()

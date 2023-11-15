@@ -24,7 +24,7 @@ class ClientWithOptionsTest extends TestCase
             ])
         );
 
-        $this->setExpectedException(ConfigurationException::class);
+        $this->expectException(ConfigurationException::class);
         new TestClientFactoryWithBaseUrlParams([]);
     }
 

@@ -6,6 +6,7 @@ use Fig\Http\Message\RequestMethodInterface;
 use Fig\Http\Message\StatusCodeInterface;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
+use Paysera\Component\RestClientCommon\Exception\ClientException;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\BasicAuthentication;
 use Paysera\Component\RestClientCommon\Middleware\Authentication\OAuthAuthentication;
 use Paysera\Component\RestClientCommon\Tests\Client\TestClientFactory;
@@ -112,9 +113,6 @@ class AuthenticationMiddlewareTest extends TestCase
         $this->assertSame('Basic ' . base64_encode(sprintf('%s:%s', $username, $password)), $auth);
     }
 
-    /**
-     * @expectedException \Paysera\Component\RestClientCommon\Exception\ClientException
-     */
     public function testUnauthorizedResponse()
     {
         TestClientFactory::setHandler(
@@ -125,6 +123,18 @@ class AuthenticationMiddlewareTest extends TestCase
 
         $factory = new TestClientFactory([]);
         $client = $factory->getTestClient();
-        $client->getSomething();
+
+        try {
+            $client->getSomething();
+        } catch (ClientException $exception) {
+            $this->assertNull($exception->getError());
+
+            $this->assertEquals(
+                "",
+                $exception->getResponse()->getBody()->getContents()
+            );
+
+            $this->assertEquals(401, $exception->getResponse()->getStatusCode());
+        }
     }
 }
