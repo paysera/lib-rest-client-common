@@ -117,7 +117,7 @@ class RequestException extends Exception
 
     public static function create(RequestInterface $request, ResponseInterface $response)
     {
-        $exception = new static(null, $request, $response);
+        $exception = new static('', $request, $response);
 
         if (!$response->getBody()->isReadable()) {
             return $exception;
