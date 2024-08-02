@@ -62,7 +62,9 @@ abstract class Result extends Entity implements Iterator, Countable
 
     public function getItems()
     {
-        return $this->get($this->dataKey);
+        $items = $this->get($this->dataKey);
+
+        return is_array($items) ? $items : [];
     }
 
     public function getMetadata()
