@@ -1,6 +1,6 @@
 {
   "name": "paysera/lib-rest-client-common",
-  "version": "2.8.0",
+  "version": "2.7.1",
   "description": "Base classes/helpers used in REST Clients",
   "autoload": {
     "psr-4": {
