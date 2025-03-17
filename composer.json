@@ -1,6 +1,6 @@
 {
   "name": "paysera/lib-rest-client-common",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "description": "Base classes/helpers used in REST Clients",
   "autoload": {
     "psr-4": {
@@ -14,7 +14,7 @@
   },
   "require": {
     "php": ">=7.4",
-    "psr/http-message": "^1.0",
+    "psr/http-message": "^1.0|^2.0",
     "guzzlehttp/guzzle": "^6.0 | ^7.0",
     "fig/http-message-util": "^1.0",
     "guzzlehttp/psr7": "^1.4|^2.0",
