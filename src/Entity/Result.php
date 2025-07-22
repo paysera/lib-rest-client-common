@@ -23,6 +23,9 @@ abstract class Result extends Entity implements Iterator, Countable
         $this->position = 0;
     }
 
+    /**
+     * @return Entity
+     */
     #[\ReturnTypeWillChange]
     public function current()
     {
@@ -30,30 +33,45 @@ abstract class Result extends Entity implements Iterator, Countable
         return $this->createItem($data);
     }
 
+    /**
+     * @return void
+     */
     #[\ReturnTypeWillChange]
     public function next()
     {
         ++$this->position;
     }
 
+    /**
+     * @return int
+     */
     #[\ReturnTypeWillChange]
     public function key()
     {
         return $this->position;
     }
 
+    /**
+     * @return bool
+     */
     #[\ReturnTypeWillChange]
     public function valid()
     {
        return isset($this->getItems()[$this->position]);
     }
 
+    /**
+     * @return void
+     */
     #[\ReturnTypeWillChange]
     public function rewind()
     {
         $this->position = 0;
     }
 
+    /**
+     * @return int
+     */
     #[\ReturnTypeWillChange]
     public function count()
     {
