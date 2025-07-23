@@ -28,7 +28,7 @@ class Entity implements ArrayAccess
 
     /**
      * @param mixed $offset
-     * @return mixed|null
+     * @return mixed
      */
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)
