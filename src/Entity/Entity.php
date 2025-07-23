@@ -16,24 +16,41 @@ class Entity implements ArrayAccess
         $this->data = $data;
     }
 
+    /**
+     * @param mixed $offset
+     * @return bool
+     */
     #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         return array_key_exists($offset, $this->data);
     }
 
+    /**
+     * @param mixed $offset
+     * @return mixed
+     */
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return $this->get($offset);
     }
 
+    /**
+     * @param mixed $offset
+     * @param mixed $value
+     * @return void
+     */
     #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         $this->set($offset, $value);
     }
 
+    /**
+     * @param mixed $offset
+     * @return void
+     */
     #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
