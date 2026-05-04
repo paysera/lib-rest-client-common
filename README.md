@@ -106,6 +106,36 @@ $data = $testClient->getSomething();
 ```
 * Please note that only single authentication mechanism is supported.
 
+#### Middleware
+
+You can add custom Guzzle middleware to client factories by implementing `GuzzleMiddlewareInterface`:
+
+```php
+use Paysera\Component\RestClientCommon\Middleware\GuzzleMiddlewareInterface;
+use Psr\Http\Message\RequestInterface;
+
+class CustomMiddleware implements GuzzleMiddlewareInterface
+{
+    public function getMiddlewareFunction(): callable
+    {
+        return function (callable $handler) {
+            return function (RequestInterface $request, array $options) use ($handler) {
+                $request = $request->withHeader('X-Custom-Header', 'value');
+                return $handler($request, $options);
+            };
+        };
+    }
+}
+```
+
+Register middleware on the factory before creating clients:
+
+```php
+$factory = new TestClientFactory([]);
+$factory->addMiddleware(new CustomMiddleware());
+$client = $factory->getTestClient();
+```
+
 In case you want to change some configuration options at runtime, use `TestClient::withOptions()`:
 
 ```php
