@@ -10,7 +10,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Paysera\Component\RestClientCommon\Client\ApiClient;
-use Paysera\Component\RestClientCommon\Middleware\GuzzleMiddlewareInterface;
+use Paysera\Component\RestClientCommon\Middleware\GuzzleMiddlewareProviderInterface;
 use Paysera\Component\RestClientCommon\Util\ClientFactoryAbstract;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
@@ -20,7 +20,7 @@ class ClientFactoryMiddlewareTest extends TestCase
     /**
      * @dataProvider middlewareDataProvider
      *
-     * @param GuzzleMiddlewareInterface[] $middlewares
+     * @param GuzzleMiddlewareProviderInterface[] $middlewares
      * @param array<string, string> $expectedHeaders
      */
     public function testMiddlewareIsAppliedToRequests(
@@ -31,7 +31,7 @@ class ClientFactoryMiddlewareTest extends TestCase
         $factory = $this->createFactory($mockHandler);
 
         foreach ($middlewares as $middleware) {
-            $factory->addMiddleware($middleware);
+            $factory->addMiddlewareProvider($middleware);
         }
 
         $client = $this->createTestClient($factory);
@@ -47,7 +47,7 @@ class ClientFactoryMiddlewareTest extends TestCase
 
     /**
      * @return Generator<string, array{
-     *     middlewares: GuzzleMiddlewareInterface[],
+     *     middlewares: GuzzleMiddlewareProviderInterface[],
      *     expectedHeaders: array<string, string>,
      * }>
      */
@@ -86,9 +86,9 @@ class ClientFactoryMiddlewareTest extends TestCase
         $this->assertFalse($request->hasHeader('X-Test'));
     }
 
-    private function createHeaderMiddleware(string $headerName, string $headerValue): GuzzleMiddlewareInterface
+    private function createHeaderMiddleware(string $headerName, string $headerValue): GuzzleMiddlewareProviderInterface
     {
-        return new class($headerName, $headerValue) implements GuzzleMiddlewareInterface {
+        return new class($headerName, $headerValue) implements GuzzleMiddlewareProviderInterface {
             private string $headerName;
             private string $headerValue;
 
@@ -98,7 +98,7 @@ class ClientFactoryMiddlewareTest extends TestCase
                 $this->headerValue = $headerValue;
             }
 
-            public function getMiddlewareFunction(): callable
+            public function getMiddleware(): callable
             {
                 return function (callable $handler) {
                     return function (RequestInterface $request, array $options) use ($handler) {

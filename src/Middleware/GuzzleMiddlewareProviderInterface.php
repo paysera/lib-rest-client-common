@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Paysera\Component\RestClientCommon\Middleware;
 
-interface GuzzleMiddlewareInterface
+interface GuzzleMiddlewareProviderInterface
 {
-    public function getMiddlewareFunction(): callable;
+    public function getMiddleware(): callable;
 }
