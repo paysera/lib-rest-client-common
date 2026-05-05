@@ -9,7 +9,7 @@ use Generator;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use Paysera\Component\RestClientCommon\Client\ApiClient;
+use Paysera\Component\RestClientCommon\Exception\ClientException;
 use Paysera\Component\RestClientCommon\Middleware\GuzzleMiddlewareProviderInterface;
 use Paysera\Component\RestClientCommon\Util\ClientFactoryAbstract;
 use PHPUnit\Framework\TestCase;
@@ -22,6 +22,7 @@ class ClientFactoryMiddlewareTest extends TestCase
      *
      * @param GuzzleMiddlewareProviderInterface[] $middlewares
      * @param array<string, string> $expectedHeaders
+     * @throws ClientException
      */
     public function testMiddlewareIsAppliedToRequests(
         array $middlewares,
@@ -73,6 +74,9 @@ class ClientFactoryMiddlewareTest extends TestCase
         ];
     }
 
+    /**
+     * @throws ClientException
+     */
     public function testNoMiddlewareDoesNotAffectRequests(): void
     {
         $mockHandler = new MockHandler([new Response(StatusCodeInterface::STATUS_NO_CONTENT)]);
@@ -112,7 +116,7 @@ class ClientFactoryMiddlewareTest extends TestCase
 
     private function createFactory(MockHandler $mockHandler): ClientFactoryAbstract
     {
-        return new class($mockHandler) extends ClientFactoryAbstract {
+        return new class($mockHandler)  extends ClientFactoryAbstract {
             private MockHandler $mockHandler;
 
             public function __construct(MockHandler $mockHandler)
@@ -120,12 +124,7 @@ class ClientFactoryMiddlewareTest extends TestCase
                 $this->mockHandler = $mockHandler;
             }
 
-            public function buildTestClient(): ApiClient
-            {
-                return $this->createApiClient([]);
-            }
-
-            protected function getHandlerStack()
+            protected function getHandlerStack(): HandlerStack
             {
                 return HandlerStack::create($this->mockHandler);
             }
@@ -134,6 +133,6 @@ class ClientFactoryMiddlewareTest extends TestCase
 
     private function createTestClient(ClientFactoryAbstract $factory): Client\TestClient
     {
-        return new Client\TestClient($factory->buildTestClient());
+        return new Client\TestClient($factory->createApiClient([]));
     }
 }
