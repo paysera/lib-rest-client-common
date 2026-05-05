@@ -6,8 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## 2.8.0
 ### Added
-- `GuzzleMiddlewareProviderInterface` for defining Guzzle middleware components
-- `ClientFactoryAbstract::addMiddlewareProvider()` for injecting middleware into client factories
+- `ClientFactoryAbstract::addMiddleware(callable)` for injecting Guzzle middleware into client factories
 
 ## 2.7.2
 ### Fixed

@@ -108,21 +108,18 @@ $data = $testClient->getSomething();
 
 #### Middleware
 
-You can add custom Guzzle middleware to client factories by implementing `GuzzleMiddlewareProviderInterface`:
+You can add custom Guzzle middleware to client factories. Middleware must be a callable (e.g. a class with `__invoke`):
 
 ```php
-use Paysera\Component\RestClientCommon\Middleware\GuzzleMiddlewareProviderInterface;
 use Psr\Http\Message\RequestInterface;
 
-class CustomMiddlewareProvider implements GuzzleMiddlewareProviderInterface
+class CustomMiddleware
 {
-    public function getMiddleware(): callable
+    public function __invoke(callable $handler): callable
     {
-        return function (callable $handler) {
-            return function (RequestInterface $request, array $options) use ($handler) {
-                $request = $request->withHeader('X-Custom-Header', 'value');
-                return $handler($request, $options);
-            };
+        return function (RequestInterface $request, array $options) use ($handler) {
+            $request = $request->withHeader('X-Custom-Header', 'value');
+            return $handler($request, $options);
         };
     }
 }
@@ -132,7 +129,7 @@ Register middleware on the factory before creating clients:
 
 ```php
 $factory = new TestClientFactory([]);
-$factory->addMiddlewareProvider(new CustomMiddlewareProvider());
+$factory->addMiddleware(new CustomMiddleware());
 $client = $factory->getTestClient();
 ```
 

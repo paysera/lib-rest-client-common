@@ -10,7 +10,6 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Paysera\Component\RestClientCommon\Exception\ClientException;
-use Paysera\Component\RestClientCommon\Middleware\GuzzleMiddlewareProviderInterface;
 use Paysera\Component\RestClientCommon\Util\ClientFactoryAbstract;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
@@ -20,7 +19,7 @@ class ClientFactoryMiddlewareTest extends TestCase
     /**
      * @dataProvider middlewareDataProvider
      *
-     * @param GuzzleMiddlewareProviderInterface[] $middlewares
+     * @param callable[] $middlewares
      * @param array<string, string> $expectedHeaders
      * @throws ClientException
      */
@@ -32,7 +31,7 @@ class ClientFactoryMiddlewareTest extends TestCase
         $factory = $this->createFactory($mockHandler);
 
         foreach ($middlewares as $middleware) {
-            $factory->addMiddlewareProvider($middleware);
+            $factory->addMiddleware($middleware);
         }
 
         $client = $this->createTestClient($factory);
@@ -48,7 +47,7 @@ class ClientFactoryMiddlewareTest extends TestCase
 
     /**
      * @return Generator<string, array{
-     *     middlewares: GuzzleMiddlewareProviderInterface[],
+     *     middlewares: callable[],
      *     expectedHeaders: array<string, string>,
      * }>
      */
@@ -90,27 +89,13 @@ class ClientFactoryMiddlewareTest extends TestCase
         $this->assertFalse($request->hasHeader('X-Test'));
     }
 
-    private function createHeaderMiddleware(string $headerName, string $headerValue): GuzzleMiddlewareProviderInterface
+    private function createHeaderMiddleware(string $headerName, string $headerValue): callable
     {
-        return new class($headerName, $headerValue) implements GuzzleMiddlewareProviderInterface {
-            private string $headerName;
-            private string $headerValue;
-
-            public function __construct(string $headerName, string $headerValue)
-            {
-                $this->headerName = $headerName;
-                $this->headerValue = $headerValue;
-            }
-
-            public function getMiddleware(): callable
-            {
-                return function (callable $handler) {
-                    return function (RequestInterface $request, array $options) use ($handler) {
-                        $request = $request->withHeader($this->headerName, $this->headerValue);
-                        return $handler($request, $options);
-                    };
-                };
-            }
+        return function (callable $handler) use ($headerName, $headerValue) {
+            return function (RequestInterface $request, array $options) use ($handler, $headerName, $headerValue) {
+                $request = $request->withHeader($headerName, $headerValue);
+                return $handler($request, $options);
+            };
         };
     }
 

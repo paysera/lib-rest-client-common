@@ -15,8 +15,6 @@ use Paysera\Component\RestClientCommon\Middleware\Authentication\MacAuthenticati
 use Paysera\Component\RestClientCommon\Middleware\Authentication\OAuthAuthentication;
 use Paysera\Component\RestClientCommon\Client\ApiClient;
 use Paysera\Component\RestClientCommon\Middleware\Exception\RequestExceptionMiddleware;
-use Paysera\Component\RestClientCommon\Middleware\GuzzleMiddlewareProviderInterface;
-
 /**
  * @api
  */
@@ -25,8 +23,8 @@ abstract class ClientFactoryAbstract
     const DEFAULT_BASE_URL = '';
     const AUTH_BASE_URL = 'https://wallet.paysera.com/oauth/v1/';
 
-    /** @var GuzzleMiddlewareProviderInterface[] */
-    private $middlewareProviders = [];
+    /** @var callable[] */
+    private $middlewares = [];
 
     private static $availableAuthTypes = [
         BasicAuthentication::TYPE,
@@ -47,9 +45,9 @@ abstract class ClientFactoryAbstract
         return new static($options);
     }
 
-    public function addMiddlewareProvider(GuzzleMiddlewareProviderInterface $middlewareProvider): void
+    public function addMiddleware(callable $middleware): void
     {
-        $this->middlewareProviders[] = $middlewareProvider;
+        $this->middlewares[] = $middleware;
     }
 
     public function createApiClient(array $options)
@@ -149,8 +147,8 @@ abstract class ClientFactoryAbstract
 
         $stack->unshift((new RequestExceptionMiddleware())->getMiddlewareFunction());
 
-        foreach ($this->middlewareProviders as $middlewareProvider) {
-            $stack->push($middlewareProvider->getMiddleware());
+        foreach ($this->middlewares as $middleware) {
+            $stack->push($middleware);
         }
 
         return $client;
