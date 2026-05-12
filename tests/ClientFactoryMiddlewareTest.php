@@ -10,6 +10,8 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Paysera\Component\RestClientCommon\Exception\ClientException;
+use Paysera\Component\RestClientCommon\Tests\Client\EagerTestClientFactory;
+use Paysera\Component\RestClientCommon\Tests\Client\TestClient;
 use Paysera\Component\RestClientCommon\Util\ClientFactoryAbstract;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
@@ -175,7 +177,7 @@ class ClientFactoryMiddlewareTest extends TestCase
 
     private function createFactory(MockHandler $mockHandler): ClientFactoryAbstract
     {
-        return new class($mockHandler)  extends ClientFactoryAbstract {
+        return new class($mockHandler) extends ClientFactoryAbstract {
             private MockHandler $mockHandler;
 
             public function __construct(MockHandler $mockHandler)
@@ -190,13 +192,13 @@ class ClientFactoryMiddlewareTest extends TestCase
         };
     }
 
-    private function createEagerFactory(MockHandler $mockHandler): Client\EagerTestClientFactory
+    private function createEagerFactory(MockHandler $mockHandler): EagerTestClientFactory
     {
-        return new Client\EagerTestClientFactory($mockHandler);
+        return new EagerTestClientFactory($mockHandler);
     }
 
-    private function createTestClient(ClientFactoryAbstract $factory): Client\TestClient
+    private function createTestClient(ClientFactoryAbstract $factory): TestClient
     {
-        return new Client\TestClient($factory->createApiClient([]));
+        return new TestClient($factory->createApiClient([]));
     }
 }

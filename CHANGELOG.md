@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## 2.8.0
 ### Added
 - `ClientFactoryAbstract::addMiddleware(callable)` for injecting Guzzle middleware into client factories
+- Middleware added after `createApiClient()` is pushed onto the existing `HandlerStack`, fixing injection timing for Symfony DI `addMethodCall` usage
 
 ## 2.7.2
 ### Fixed

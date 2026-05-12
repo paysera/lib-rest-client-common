@@ -15,6 +15,7 @@ use Paysera\Component\RestClientCommon\Middleware\Authentication\MacAuthenticati
 use Paysera\Component\RestClientCommon\Middleware\Authentication\OAuthAuthentication;
 use Paysera\Component\RestClientCommon\Client\ApiClient;
 use Paysera\Component\RestClientCommon\Middleware\Exception\RequestExceptionMiddleware;
+
 /**
  * @api
  */
@@ -24,10 +25,9 @@ abstract class ClientFactoryAbstract
     const AUTH_BASE_URL = 'https://wallet.paysera.com/oauth/v1/';
 
     /** @var callable[] */
-    private $middlewares = [];
+    private array $middlewares = [];
 
-    /** @var HandlerStack|null */
-    private $handlerStack = null;
+    private ?HandlerStack $handlerStack = null;
 
     private static $availableAuthTypes = [
         BasicAuthentication::TYPE,

@@ -125,13 +125,15 @@ class CustomMiddleware
 }
 ```
 
-Register middleware on the factory before creating clients:
+Register middleware on the factory:
 
 ```php
 $factory = new TestClientFactory([]);
 $factory->addMiddleware(new CustomMiddleware());
 $client = $factory->getTestClient();
 ```
+
+Middleware can also be added after client creation (e.g., via Symfony DI `addMethodCall`). It is pushed onto the existing `HandlerStack` and takes effect on subsequent requests.
 
 In case you want to change some configuration options at runtime, use `TestClient::withOptions()`:
 
