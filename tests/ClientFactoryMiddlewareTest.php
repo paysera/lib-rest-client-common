@@ -89,6 +89,80 @@ class ClientFactoryMiddlewareTest extends TestCase
         $this->assertFalse($request->hasHeader('X-Test'));
     }
 
+    /**
+     * @dataProvider lateMiddlewareDataProvider
+     *
+     * @param callable[] $middlewares
+     * @param array<string, string> $expectedHeaders
+     * @param bool $useWithOptions
+     * @throws ClientException
+     */
+    public function testMiddlewareAddedAfterClientCreationIsApplied(
+        array $middlewares,
+        array $expectedHeaders,
+        bool $useWithOptions
+    ): void {
+        $mockHandler = new MockHandler([new Response(StatusCodeInterface::STATUS_NO_CONTENT)]);
+        $factory = $this->createEagerFactory($mockHandler);
+
+        foreach ($middlewares as $middleware) {
+            $factory->addMiddleware($middleware);
+        }
+
+        $client = $factory->getTestClient();
+        if ($useWithOptions) {
+            $client = $client->withOptions([]);
+        }
+        $client->getSomething();
+
+        $request = $mockHandler->getLastRequest();
+
+        foreach ($expectedHeaders as $headerName => $expectedValue) {
+            $this->assertTrue($request->hasHeader($headerName));
+            $this->assertSame($expectedValue, $request->getHeaderLine($headerName));
+        }
+    }
+
+    /**
+     * @return Generator<string, array{
+     *     middlewares: callable[],
+     *     expectedHeaders: array<string, string>,
+     *     useWithOptions: bool,
+     * }>
+     */
+    public function lateMiddlewareDataProvider(): Generator
+    {
+        yield 'single middleware on pre-built client' => [
+            'middlewares' => [
+                $this->createHeaderMiddleware('X-Late', 'late-value'),
+            ],
+            'expectedHeaders' => [
+                'X-Late' => 'late-value',
+            ],
+            'useWithOptions' => false,
+        ];
+        yield 'multiple middlewares on pre-built client' => [
+            'middlewares' => [
+                $this->createHeaderMiddleware('X-First', 'first'),
+                $this->createHeaderMiddleware('X-Second', 'second'),
+            ],
+            'expectedHeaders' => [
+                'X-First' => 'first',
+                'X-Second' => 'second',
+            ],
+            'useWithOptions' => false,
+        ];
+        yield 'single middleware via withOptions' => [
+            'middlewares' => [
+                $this->createHeaderMiddleware('X-Late', 'late-value'),
+            ],
+            'expectedHeaders' => [
+                'X-Late' => 'late-value',
+            ],
+            'useWithOptions' => true,
+        ];
+    }
+
     private function createHeaderMiddleware(string $headerName, string $headerValue): callable
     {
         return function (callable $handler) use ($headerName, $headerValue) {
@@ -114,6 +188,11 @@ class ClientFactoryMiddlewareTest extends TestCase
                 return HandlerStack::create($this->mockHandler);
             }
         };
+    }
+
+    private function createEagerFactory(MockHandler $mockHandler): Client\EagerTestClientFactory
+    {
+        return new Client\EagerTestClientFactory($mockHandler);
     }
 
     private function createTestClient(ClientFactoryAbstract $factory): Client\TestClient
