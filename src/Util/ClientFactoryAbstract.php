@@ -24,6 +24,11 @@ abstract class ClientFactoryAbstract
     const DEFAULT_BASE_URL = '';
     const AUTH_BASE_URL = 'https://wallet.paysera.com/oauth/v1/';
 
+    /** @var callable[] */
+    private array $middlewares = [];
+
+    private ?HandlerStack $handlerStack = null;
+
     private static $availableAuthTypes = [
         BasicAuthentication::TYPE,
         BearerAuthentication::TYPE,
@@ -41,6 +46,15 @@ abstract class ClientFactoryAbstract
     public static function create(array $options)
     {
         return new static($options);
+    }
+
+    public function addMiddleware(callable $middleware): void
+    {
+        $this->middlewares[] = $middleware;
+
+        if ($this->handlerStack !== null) {
+            $this->handlerStack->push($middleware);
+        }
     }
 
     public function createApiClient(array $options)
@@ -130,15 +144,19 @@ abstract class ClientFactoryAbstract
      */
     private function buildClient($baseUrl, $authBaseUrl, array $config, array $options)
     {
-        $stack = $this->getHandlerStack();
+        $this->handlerStack = $this->getHandlerStack();
         $responseBodyDecoder = $this->getResponseBodyDecoder();
 
-        $client = $this->buildApiClient($baseUrl, $stack, $config, $responseBodyDecoder, $options);
-        $oAuthClient = $this->buildApiClient($authBaseUrl, $stack, $config, $responseBodyDecoder, $options);
+        $client = $this->buildApiClient($baseUrl, $this->handlerStack, $config, $responseBodyDecoder, $options);
+        $oAuthClient = $this->buildApiClient($authBaseUrl, $this->handlerStack, $config, $responseBodyDecoder, $options);
 
-        $this->addSecurity($stack, $oAuthClient);
+        $this->addSecurity($this->handlerStack, $oAuthClient);
 
-        $stack->unshift((new RequestExceptionMiddleware())->getMiddlewareFunction());
+        $this->handlerStack->unshift((new RequestExceptionMiddleware())->getMiddlewareFunction());
+
+        foreach ($this->middlewares as $middleware) {
+            $this->handlerStack->push($middleware);
+        }
 
         return $client;
     }
