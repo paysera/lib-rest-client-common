@@ -2,6 +2,7 @@
 
 namespace Paysera\Component\RestClientCommon\Middleware\Authentication;
 
+use GuzzleHttp\Psr7\MultipartStream;
 use GuzzleHttp\Psr7\Uri;
 use Paysera\Component\RestClientCommon\Exception\AuthenticationConfigurationException;
 use Paysera\Component\RestClientCommon\Util\ConfigHandler;
@@ -85,9 +86,10 @@ class MacAuthentication implements AuthenticationMiddlewareInterface
         $content = $request->getBody()->getContents();
         $extParts = [];
 
-        if ($content !== '') {
+        if (!$request->getBody() instanceof MultipartStream && $content !== '') {
             $extParts['body_hash'] = base64_encode(hash('sha256', $content, true));
         }
+
         if (
             isset($auth['parameters'])
             && is_array($auth['parameters'])
