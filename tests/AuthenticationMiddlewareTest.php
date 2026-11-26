@@ -32,13 +32,13 @@ class AuthenticationMiddlewareTest extends TestCase
                 new Response(
                     StatusCodeInterface::STATUS_OK,
                     ['Content-Type' => 'application/json'],
-                    \GuzzleHttp\json_encode(['a' => 'b'])
+                    json_encode(['a' => 'b'])
                 ),
                 new Response(StatusCodeInterface::STATUS_UNAUTHORIZED),
                 new Response(
                     StatusCodeInterface::STATUS_OK,
                     ['Content-Type' => 'application/json'],
-                    \GuzzleHttp\json_encode([
+                    json_encode([
                         'access_token' => 'aaaa',
                         'mac_key' => 'bbb',
                         'expires_in' => 3600,
@@ -49,7 +49,7 @@ class AuthenticationMiddlewareTest extends TestCase
                 new Response(
                     StatusCodeInterface::STATUS_OK,
                     ['Content-Type' => 'application/json'],
-                    \GuzzleHttp\json_encode(['x' => 'y'])
+                    json_encode(['x' => 'y'])
                 ),
             ])
         );

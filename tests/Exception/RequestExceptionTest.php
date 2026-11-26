@@ -21,9 +21,10 @@ class RequestExceptionTest extends TestCase
         error_reporting(-1);
 
         try {
-            RequestException::create($requestMock, $responseMock);
+            $exception = RequestException::create($requestMock, $responseMock);
 
-            $this->assertTrue(true);
+            $this->assertNull($exception->getError());
+            $this->assertSame('some body', $responseMock->getBody()->getContents());
         } catch (Deprecated $exception) {
             $this->assertEquals(
                 'Exception::__construct(): Passing null to parameter #1 ($message) of type string is deprecated',

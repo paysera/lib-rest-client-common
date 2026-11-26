@@ -36,7 +36,7 @@ class ClientExceptionTest extends TestCase
                 new Response(
                     StatusCodeInterface::STATUS_NOT_FOUND,
                     ['Content-Type' => 'application/json'],
-                    \GuzzleHttp\json_encode(['error' => 'NOT_FOUND', 'error_description' => 'Resource not found'])
+                    json_encode(['error' => 'NOT_FOUND', 'error_description' => 'Resource not found'])
                 ),
             ])
         );
@@ -92,7 +92,7 @@ class ClientExceptionTest extends TestCase
                 new Response(
                     StatusCodeInterface::STATUS_BAD_REQUEST,
                     ['Content-Type' => 'application/json'],
-                    new NoSeekStream(Utils::streamFor(\GuzzleHttp\json_encode([
+                    new NoSeekStream(Utils::streamFor(json_encode([
                         'error' => 'BAD_REQUEST',
                         'error_description' => 'Wrong parameters'
                     ])))

@@ -3,8 +3,8 @@
 namespace Paysera\Component\RestClientCommon\Exception;
 
 use Exception;
+use JsonException;
 use RuntimeException;
-use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -124,10 +124,10 @@ class RequestException extends Exception
         }
 
         try {
-            $decodedResponse = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
+            $decodedResponse = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
         } catch (RuntimeException $runtimeException) {
             return $exception;
-        } catch (InvalidArgumentException $invalidArgumentException) {
+        } catch (JsonException $jsonException) {
             return $exception;
         } finally {
             if ($response->getBody()->isSeekable()) {
