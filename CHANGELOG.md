@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.9.0
+### Changed
+- JSON is encoded and decoded with PHP's `json_encode`/`json_decode` and `JSON_THROW_ON_ERROR` instead of Guzzle's deprecated `GuzzleHttp\json_encode`/`GuzzleHttp\json_decode`; errors are still thrown as `GuzzleHttp\Exception\InvalidArgumentException`
+- Request bodies are built with `GuzzleHttp\Psr7\Utils::streamFor`; the `GuzzleHttp\Psr7\stream_for` fallback is removed
+- Bumped `guzzlehttp/psr7` to `^1.7|^2.0`
+
 ## 2.8.0
 ### Added
 - `ClientFactoryAbstract::addMiddleware(callable)` for injecting Guzzle middleware into client factories

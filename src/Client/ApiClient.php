@@ -5,17 +5,15 @@ namespace Paysera\Component\RestClientCommon\Client;
 use Fig\Http\Message\RequestMethodInterface;
 use Fig\Http\Message\StatusCodeInterface;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\InvalidArgumentException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Utils;
 use Paysera\Component\RestClientCommon\Decoder\ResponseBodyDecoder;
 use Paysera\Component\RestClientCommon\Entity\Entity;
 use Paysera\Component\RestClientCommon\Util\ClientFactoryAbstract;
 use Psr\Http\Message\RequestInterface;
+use JsonException;
 use Psr\Http\Message\ResponseInterface;
-
-use Psr\Http\Message\StreamInterface;
-
-use function GuzzleHttp\Psr7\stream_for;
 
 /**
  * @api
@@ -98,7 +96,7 @@ class ApiClient
                 $uri = $request->getUri()->withQuery(http_build_query($parameters));
                 $request = $request->withUri($uri);
             } else {
-                $data = \GuzzleHttp\json_encode($parameters);
+                $data = $this->encodeJson($parameters);
                 $request = $this
                     ->createRequestWithContent($method, $uri, $data)
                     ->withHeader('Content-Type', 'application/json');
@@ -119,23 +117,18 @@ class ApiClient
         $request = new Request($method, $uri);
 
         if ($content !== null) {
-            $request = $request->withBody($this->streamFor($content));
+            $request = $request->withBody(Utils::streamFor($content));
         }
 
         return $request;
     }
 
-    /**
-     * @param resource|string|null $content
-     *
-     * @return StreamInterface
-     */
-    private function streamFor($content)
+    private function encodeJson(array $parameters): string
     {
-        if (method_exists(Utils::class, 'streamFor')) {
-            return Utils::streamFor($content);
+        try {
+            return json_encode($parameters, JSON_THROW_ON_ERROR);
+        } catch (JsonException $exception) {
+            throw new InvalidArgumentException('json_encode error: ' . $exception->getMessage(), 0, $exception);
         }
-
-        return stream_for($content);
     }
 }
