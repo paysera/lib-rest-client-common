@@ -78,7 +78,7 @@ class ApiClient
      *
      * @return RequestInterface
      */
-    public function createRequest($method, $uri, Entity $entity = null)
+    public function createRequest($method, $uri, ?Entity $entity = null)
     {
         return $this->createRequestWithParameters($method, $uri, $entity !== null ? $entity->getData() : null);
     }
@@ -89,7 +89,7 @@ class ApiClient
      * @param array|null $parameters
      * @return RequestInterface
      */
-    public function createRequestWithParameters($method, $uri, array $parameters = null)
+    public function createRequestWithParameters($method, $uri, ?array $parameters = null)
     {
         $request = new Request($method, $uri);
 

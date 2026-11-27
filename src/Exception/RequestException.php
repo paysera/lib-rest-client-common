@@ -30,7 +30,7 @@ class RequestException extends Exception
         $message,
         RequestInterface $request,
         ResponseInterface $response,
-        Exception $previous = null
+        ?Exception $previous = null
     ) {
         $message = ($message === null ? '' : $message);
         parent::__construct($message, 0, $previous);
